@@ -1,11 +1,11 @@
-import { Button } from "../ui/button";
 import PageTitle from "./page-title";
+import WalletButton from "./wallet-button";
 
 export default function Navbar() {
-    return (
-        <div className="w-full flex items-center justify-between mb-12">
-            <PageTitle/>
-            <Button>Connect Wallet</Button>
-        </div>
-    )
+  return (
+    <div className="mb-12 flex w-full items-center justify-between">
+      <PageTitle />
+      <WalletButton />
+    </div>
+  );
 }
