@@ -27,13 +27,9 @@ export const initNear = async () => {
 
   const nearConnection = await connect(nearConfig);
   const wallet = new WalletConnection(nearConnection, "my-app");
-
-  console.log("Wallet initialized:", wallet); // Log wallet for debugging
-
   return { near: nearConnection, wallet };
 };
 
-// Explicitly define the type of wallet parameter
 export const login = async (wallet: WalletConnection) => {
   console.log("Requesting sign-in...");
   await wallet.requestSignIn({
@@ -44,5 +40,5 @@ export const login = async (wallet: WalletConnection) => {
 
 export const logout = async (wallet: WalletConnection) => {
   wallet.signOut();
-  window.location.reload(); // Reload the page after logout to clear the app state
+  window.location.reload(); 
 };
