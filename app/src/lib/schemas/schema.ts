@@ -31,3 +31,21 @@ export const farmSchema = z.object({
     }), 
   time: z.date() 
 });
+
+export const modalFormSchema = z.object({
+  neat: z.string()
+  .refine(value => !isNaN(Number(value)) && Number(value) >= 0, {
+    message: "Amount must be a positive number"
+  }), 
+time: z.date(),
+investment: z.array(z.object({
+  img: z.string().url(), 
+  currency: z.string(),    
+  usdValue: z.number()
+    .refine(value => value >= 0, {
+      message: "USD Value must be a non-negative number"
+    }),
+  risk: z.enum(["Low Risk", "Medium Risk", "Height Risk"]),  
+})),
+
+});
