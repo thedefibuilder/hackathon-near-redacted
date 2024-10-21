@@ -1,6 +1,6 @@
 "use client";
 
-import { FarmCategories, farmSchema } from "@/lib/schemas/farm-schema";
+import { FarmCategories, farmSchema } from "@/lib/schemas/schema";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
