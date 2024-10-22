@@ -44,8 +44,24 @@ export default function InvestmentPlanHeaderCard({
         </div>
       </div>
       <div className="h-2" />
+
       <>
         <h1 className="text-[32px] text-white">{title}</h1>
+        <div className="h-2" />
+        <div className="flex w-full items-center justify-between">
+          <p className="w-4/6 text-left text-primary">
+            Estimated PnL & APR Over The Investment Period
+          </p>
+          <div className="flex w-1/3 items-center justify-end gap-3">
+            <div className="rounded bg-black px-2 py-1">
+              <p>+ ${estimatePnl}</p>
+            </div>
+            <div className="flex items-center gap-1 rounded bg-black px-2 py-1 text-primary">
+              <IconTriangleFilled stroke={2} className="h-2 w-2" />
+              <p>99% APR</p>
+            </div>
+          </div>
+        </div>
         <div className="h-4" />
         <div className="flex items-center gap-4">
           {investmentInfo.map((item, index) => (
@@ -62,20 +78,7 @@ export default function InvestmentPlanHeaderCard({
         </div>
       </>
       <div className="h-4" />
-      <div className="flex w-full items-center justify-between">
-        <p className="w-4/6 text-left text-primary">
-          Estimated PnL Since Added to the Watchlist
-        </p>
-        <div className="flex w-1/3 items-center justify-end gap-3">
-          <div className="rounded bg-black px-2 py-1">
-            <p>+ ${estimatePnl}</p>
-          </div>
-          <div className="flex items-center gap-1 rounded bg-black px-2 py-1 text-primary">
-            <IconTriangleFilled stroke={2} className="h-2 w-2" />
-            <p>99%</p>
-          </div>
-        </div>
-      </div>
+
       <div className="h-4" />
       <div className="flex items-center gap-3">
         <div className="rounded-full bg-primary px-6 py-2 text-black">
@@ -98,7 +101,7 @@ export default function InvestmentPlanHeaderCard({
                   <p>Generated on: {generatedDate}</p>
                 </div>
               </div>
-          
+
               <>
                 <h1 className="text-[32px] text-white">{title}</h1>
                 <div className="h-4" />
@@ -132,8 +135,8 @@ export default function InvestmentPlanHeaderCard({
                   </div>
                 </div>
               </div>
-              <div className="h-4"/>
-              <ModalForm/>
+              <div className="h-4" />
+              <ModalForm />
             </DialogHeader>
           </DialogContent>
         </Dialog>

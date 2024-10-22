@@ -24,7 +24,7 @@ export default function RootLayout({
           <div className="min-h-screen w-64 bg-foreground">
             <SidebarMenu />
           </div>
-          <main className="flex-1 overflow-y-auto bg-background p-6">
+          <main className="mx-auto max-w-[1450px] flex-1 overflow-y-auto bg-background p-6">
             <TRPCReactProvider>
               <Navbar />
               {children}
