@@ -145,7 +145,7 @@ export default function FarmsForm() {
                         placeholder="0"
                         className="!focus:ring-0 !focus:ring-offset-none ring-offset-none h-12 flex-1 border-0 bg-transparent px-0 text-right text-white"
                       />
-                      <span className="px-3 text-[14px] font-light text-white">
+                      <span className="px-3 text-[14px] font-extrabold text-white">
                         NEAR
                       </span>
                     </div>
