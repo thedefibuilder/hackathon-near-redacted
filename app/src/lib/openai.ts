@@ -27,6 +27,7 @@ export async function generateInvestmentAdvice({
 
     // Generate the prompt based on input parameters
     const prompt = generatePrompt({ categories, risk, amount, time });
+    console.log("Generated prompt:", prompt);
 
     // Add the message to the thread
     await openai.beta.threads.messages.create(thread.id, {
@@ -93,14 +94,13 @@ function generatePrompt({
 
   return `Generate an investment strategy with the following parameters:
 - Investment Categories: ${categories.join(", ")}
-- Risk Level: ${riskLevel} (${risk}%)
+- Risk Level: ${riskLevel}
 - Investment Amount: ${amount} USD
 - Time Frame: Starting from ${timeFrame}
 
 
-
 Consider the following:
-1. Split the investment across different protocols based on the risk level
+1. Spread the investment across different protocols based on the risk level
 2. Ensure the total allocated amount matches the input amount
 3. Focus on projects of the specified categories
 4. Provide at least 2 different investments for diversification`;

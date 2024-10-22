@@ -50,7 +50,7 @@ export default function FarmsForm() {
     defaultValues: {
       categories: [FarmCategories.ARTIFICIAL_INTELLIGENCE],
       risk: 33,
-      neat: "",
+      near: "",
       time: new Date(),
     },
   });
@@ -132,7 +132,7 @@ export default function FarmsForm() {
           <div className="w-1/2">
             <FormField
               control={form.control}
-              name="neat"
+              name="near"
               render={({ field }) => (
                 <FormItem>
                   <FormControl className="flex w-full">

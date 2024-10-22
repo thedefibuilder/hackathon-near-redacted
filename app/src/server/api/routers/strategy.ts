@@ -20,7 +20,7 @@ const investmentSchema = z.object({
 const generateStrategyInput = z.object({
   categories: z.array(z.nativeEnum(FarmCategories)),
   risk: z.number().min(0).max(100),
-  neat: z.string(),
+  near: z.string(),
   time: z.date(),
   userId: z.string(),
 });
@@ -47,7 +47,7 @@ export const strategyRouter = createTRPCRouter({
         });
 
         // Convert NEAR amount to number
-        const nearAmount = parseFloat(input.neat);
+        const nearAmount = parseFloat(input.near);
         if (isNaN(nearAmount)) {
           throw new TRPCError({
             code: "BAD_REQUEST",

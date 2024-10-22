@@ -20,32 +20,35 @@ export const farmSchema = z.object({
       FarmCategories.STABLE_COINS,
       FarmCategories.RESTAKING_PROTOCOLS,
       FarmCategories.MEME_FINANCE,
-    ])
+    ]),
   ),
-  risk: z.number() 
-    .min(0, { message: "Risk must be at least 0" }) 
-    .max(100, { message: "Risk must be at most 100" }), 
-  neat: z.string()
-    .refine(value => !isNaN(Number(value)) && Number(value) >= 0, {
-      message: "Amount must be a positive number"
-    }), 
-  time: z.date() 
+  risk: z
+    .number()
+    .min(0, { message: "Risk must be at least 0" })
+    .max(100, { message: "Risk must be at most 100" }),
+  near: z
+    .string()
+    .refine((value) => !isNaN(Number(value)) && Number(value) >= 0, {
+      message: "Amount must be a positive number",
+    }),
+  time: z.date(),
 });
 
 export const modalFormSchema = z.object({
-  neat: z.string()
-  .refine(value => !isNaN(Number(value)) && Number(value) >= 0, {
-    message: "Amount must be a positive number"
-  }), 
-time: z.date(),
-investment: z.array(z.object({
-  img: z.string().url(), 
-  currency: z.string(),    
-  usdValue: z.number()
-    .refine(value => value >= 0, {
-      message: "USD Value must be a non-negative number"
+  near: z
+    .string()
+    .refine((value) => !isNaN(Number(value)) && Number(value) >= 0, {
+      message: "Amount must be a positive number",
     }),
-  risk: z.enum(["Low Risk", "Medium Risk", "Height Risk"]),  
-})),
-
+  time: z.date(),
+  investment: z.array(
+    z.object({
+      img: z.string().url(),
+      currency: z.string(),
+      usdValue: z.number().refine((value) => value >= 0, {
+        message: "USD Value must be a non-negative number",
+      }),
+      risk: z.enum(["Low Risk", "Medium Risk", "Height Risk"]),
+    }),
+  ),
 });

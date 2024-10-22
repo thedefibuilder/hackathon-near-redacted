@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { modalFormSchema } from "@/lib/schemas/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -20,7 +20,7 @@ export default function ModalForm() {
   const modalForm = useForm<z.infer<typeof modalFormSchema>>({
     resolver: zodResolver(modalFormSchema),
     defaultValues: {
-      neat: "",
+      near: "",
       time: new Date(),
       investment: [
         {
@@ -58,7 +58,7 @@ export default function ModalForm() {
   const removeInvestmentItem = (index: number) => {
     const currentInvestments = modalForm.getValues("investment");
     const updatedInvestments = currentInvestments.filter((_, i) => i !== index);
-    modalForm.setValue("investment", updatedInvestments); 
+    modalForm.setValue("investment", updatedInvestments);
   };
 
   return (
@@ -68,7 +68,7 @@ export default function ModalForm() {
           <div className="w-1/2">
             <FormField
               control={modalForm.control}
-              name="neat"
+              name="near"
               render={({ field }) => (
                 <FormItem>
                   <FormControl className="flex w-full">
@@ -116,8 +116,8 @@ export default function ModalForm() {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <InvestmentPlanMainCard 
-                  investment={field.value || []} 
+                <InvestmentPlanMainCard
+                  investment={field.value || []}
                   onRemove={removeInvestmentItem}
                   isEditing
                 />
