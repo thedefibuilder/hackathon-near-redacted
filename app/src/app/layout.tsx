@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
+import { ToastProvider } from "@/components/ui/toast-provider";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import SidebarMenu from "@/components/sidebar-menu/sidebar-menu";
@@ -19,15 +20,17 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <body className="flex bg-background">
-        <div className="min-h-screen w-64 bg-foreground">
-          <SidebarMenu />
-        </div>
-        <main className="flex-1 overflow-y-auto bg-background p-6">
-          <TRPCReactProvider>
-            <Navbar />
-            {children}
-          </TRPCReactProvider>
-        </main>
+        <ToastProvider>
+          <div className="min-h-screen w-64 bg-foreground">
+            <SidebarMenu />
+          </div>
+          <main className="flex-1 overflow-y-auto bg-background p-6">
+            <TRPCReactProvider>
+              <Navbar />
+              {children}
+            </TRPCReactProvider>
+          </main>
+        </ToastProvider>
       </body>
     </html>
   );

@@ -19,24 +19,50 @@ import { Slider } from "../ui/slider";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { DatePicker } from "../ui/date-picker";
+import { api } from "@/trpc/react";
+import { useToast } from "../ui/toast-provider";
 
 export default function FarmsForm() {
+  const { toast } = useToast();
+  const generateStrategy = api.strategy.generate.useMutation({
+    onSuccess: (data) => {
+      toast({
+        title: "Strategy Generated",
+        description:
+          "Your investment strategy has been generated successfully.",
+        type: "foreground",
+      });
+      // TODO: Handle the generated strategy data
+      console.log("Generated strategy:", data);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        type: "foreground",
+        duration: 6000,
+      });
+    },
+  });
+
   const form = useForm<z.infer<typeof farmSchema>>({
     resolver: zodResolver(farmSchema),
     defaultValues: {
       categories: [FarmCategories.ARTIFICIAL_INTELLIGENCE],
-      risk: 33, 
+      risk: 33,
       neat: "",
       time: new Date(),
     },
   });
 
-  const onSubmit = (data: z.infer<typeof farmSchema>) => {
-    const formattedData = {
+  const onSubmit = async (data: z.infer<typeof farmSchema>) => {
+    // TODO: Replace with actual user address from wallet connection
+    const userId = "0x123456789ccb";
+
+    await generateStrategy.mutateAsync({
       ...data,
-      neat: Number(data.neat),
-    };
-    console.log("Form submitted with data:", formattedData);
+      userId,
+    });
   };
 
   return (
@@ -84,7 +110,7 @@ export default function FarmsForm() {
               <FormControl>
                 <Slider
                   value={[field.value]}
-                  onValueChange={(value) => field.onChange(value[0])} 
+                  onValueChange={(value) => field.onChange(value[0])}
                   max={100}
                   step={3}
                 />
@@ -103,57 +129,59 @@ export default function FarmsForm() {
         </Label>
         <div className="h-3" />
         <div className="flex w-full items-center gap-3">
-            <div className="w-1/2">
+          <div className="w-1/2">
             <FormField
-            control={form.control}
-            name="neat"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl className="flex w-full">
-                  <div className="relative flex justify-between items-center rounded-[36px] bg-muted-foreground">
-                    <Label className="px-3 text-[14px] font-light text-white">
-                      Amount
-                    </Label>
-                    <Input
+              control={form.control}
+              name="neat"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl className="flex w-full">
+                    <div className="relative flex items-center justify-between rounded-[36px] bg-muted-foreground">
+                      <Label className="px-3 text-[14px] font-light text-white">
+                        Amount
+                      </Label>
+                      <Input
+                        {...field}
+                        placeholder="0"
+                        className="!focus:ring-0 !focus:ring-offset-none ring-offset-none h-12 flex-1 border-0 bg-transparent px-0 text-right text-white"
+                      />
+                      <span className="px-3 text-[14px] font-light text-white">
+                        NEAR
+                      </span>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="w-1/2">
+            <FormField
+              control={form.control}
+              name="time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <DatePicker
                       {...field}
-                      placeholder="0"
-                      className="h-12 !focus:ring-0 !focus:ring-offset-none ring-offset-none flex-1 border-0 bg-transparent px-0 text-right text-white"
+                      onChange={(value) => field.onChange(value)}
                     />
-                    <span className="px-3 text-[14px] font-light text-white">
-                      NEAR
-                    </span>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-            </div>
-            <div className="w-1/2">
-            <FormField
-            control={form.control}
-            name="time"
-            render={({ field }) => (
-              <FormItem >
-                <FormControl>
-                  <DatePicker
-                    {...field} 
-                    onChange={(value) => field.onChange(value)} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /></div>
-     
-      
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
         <div className="h-10" />
         <Button
           type="submit"
-          className="hover:bg-transparent w-full rounded-[36px] text-[16px] font-bold text-black"
+          className="w-full rounded-[36px] text-[16px] font-bold text-black hover:bg-primary-foreground"
+          disabled={generateStrategy.isPending}
         >
-          Generate Investment Strategies
+          {generateStrategy.isPending
+            ? "Generating..."
+            : "Generate Investment Strategies"}
         </Button>
         <div className="h-3" />
       </form>
