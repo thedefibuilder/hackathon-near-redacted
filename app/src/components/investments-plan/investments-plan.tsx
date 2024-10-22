@@ -23,7 +23,7 @@ export type TInvestmentPlanHeaderCard = {
     icon: TablerIcon;
     name?: string;
     value: number | string | Date | undefined;
-  }[];  
+  }[];
 };
 
 export type TInvestmentPlanCard = {
@@ -32,7 +32,7 @@ export type TInvestmentPlanCard = {
     currency: string;
     usdValue: number;
     risk: string;
-  }[]
+  }[];
 };
 
 const investmentPlanHeader = [
@@ -48,87 +48,10 @@ const investmentPlanHeader = [
       { icon: IconCalendarTime, value: "6 months" },
     ],
   },
-  {
-    aiRisk: 3,
-    generatedDate: "2024-10-20",
-    title: "My Investment Plan 1",
-    estimatePnl: 15000,
-    investmentInfo: [
-      { icon: IconBox, name: "Chains", value: 4 },
-      { icon: IconPig, name: "Protocols", value: 3 },
-      { icon: IconWallet, name: "$", value: 12000 },
-      { icon: IconCalendarTime, value: "6 months" },
-    ],
-    investment: [
-      {
-        img: "/sushi-swap.png",
-        currency: "TAO/USDT",
-        usdValue: "4,000",
-        risk: "Low Risk",
-      },
-      {
-        img: "/akash.png",
-        currency: "TAO/USDT",
-        usdValue: "5,000",
-        risk: "Medium Risk",
-      },
-      {
-        img: "/cream.png",
-        currency: "USDT",
-        usdValue: "2,000",
-        risk: "Medium Risk",
-      },
-      {
-        img: "/quorum.png",
-        currency: "USDC",
-        usdValue: "1,000",
-        risk: "Height Risk",
-      },
-    ],
-  },
-  {
-    aiRisk: 3,
-    generatedDate: "2024-10-20",
-    title: "My Investment Plan 1",
-    estimatePnl: 15000,
-    investmentInfo: [
-      { icon: IconBox, name: "Chains", value: 4 },
-      { icon: IconPig, name: "Protocols", value: 3 },
-      { icon: IconWallet, name: "$", value: 12000 },
-      { icon: IconCalendarTime, value: "6 months" },
-    ],
-    investment: [
-      {
-        img: "/sushi-swap.png",
-        currency: "TAO/USDT",
-        usdValue: "4,000",
-        risk: "Low Risk",
-      },
-      {
-        img: "/akash.png",
-        currency: "TAO/USDT",
-        usdValue: "5,000",
-        risk: "Medium Risk",
-      },
-      {
-        img: "/cream.png",
-        currency: "USDT",
-        usdValue: "2,000",
-        risk: "Medium Risk",
-      },
-      {
-        img: "/quorum.png",
-        currency: "USDC",
-        usdValue: "1,000",
-        risk: "Height Risk",
-      },
-    ],
-  },
 ];
 
- export const investmentPlan = [
+export const investmentPlan = [
   {
-  
     investment: [
       {
         img: "/sushi-swap.png",
@@ -154,9 +77,9 @@ const investmentPlanHeader = [
         usdValue: 1000,
         risk: "Height Risk",
       },
-    ]
-  }
-]
+    ],
+  },
+];
 
 export default function InvestmentPlan() {
   return (
@@ -181,8 +104,11 @@ export default function InvestmentPlan() {
             <div className="h-8" />
             {investmentPlan.map((item, index) => {
               return (
-                <InvestmentPlanMainCard investment={item.investment} key={index} />
-              )
+                <InvestmentPlanMainCard
+                  investment={item.investment}
+                  key={index}
+                />
+              );
             })}
           </AccordionContent>
         </AccordionItem>

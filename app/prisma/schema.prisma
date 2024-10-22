@@ -37,7 +37,7 @@ model Investment {
   chain      String
   protocol   String
   pool       String
-  APR        String?
+  APR        Float?
   amount     Float
 
   @@index([strategyId])

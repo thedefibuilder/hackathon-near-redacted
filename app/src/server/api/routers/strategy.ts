@@ -12,7 +12,7 @@ const investmentSchema = z.object({
   chain: z.string(),
   protocol: z.string(),
   pool: z.string(),
-  APR: z.string().optional(),
+  APR: z.number().optional(),
   amount: z.number(),
 });
 

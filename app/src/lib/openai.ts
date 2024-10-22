@@ -110,7 +110,7 @@ function extractInvestments(response: string): Array<{
   chain: string;
   protocol: string;
   pool: string;
-  APR: string;
+  APR: number;
   amount: number;
 }> {
   try {
