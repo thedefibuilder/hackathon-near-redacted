@@ -5,6 +5,7 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { farmSchema, FarmCategories } from "@/lib/schemas/schema";
 import { TRPCError } from "@trpc/server";
 import { generateInvestmentAdvice } from "@/lib/openai";
+import { PriceService } from "@/lib/services/price-service";
 
 // Schema for investments in the database
 const investmentSchema = z.object({
@@ -54,11 +55,13 @@ export const strategyRouter = createTRPCRouter({
           });
         }
 
+        const usdAmount = await PriceService.convertNearToUSD(nearAmount);
+
         // Generate investment strategy using OpenAI
         const generatedInvestments = await generateInvestmentAdvice({
           categories: input.categories,
           risk: input.risk,
-          amount: nearAmount,
+          amount: usdAmount,
           time: input.time,
         });
 

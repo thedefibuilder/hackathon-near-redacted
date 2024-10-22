@@ -94,24 +94,16 @@ function generatePrompt({
   return `Generate an investment strategy with the following parameters:
 - Investment Categories: ${categories.join(", ")}
 - Risk Level: ${riskLevel} (${risk}%)
-- Investment Amount: ${amount} NEAR
+- Investment Amount: ${amount} USD
 - Time Frame: Starting from ${timeFrame}
 
-Please provide investment recommendations in the following JSON format:
-{
-  "chain": "<blockchain name>",
-  "protocol": "<protocol name>",
-  "pool": "<pool name>",
-  "APR": "<APR value>",
-  "amount": <numerical amount>
-}
+
 
 Consider the following:
 1. Split the investment across different protocols based on the risk level
 2. Ensure the total allocated amount matches the input amount
-3. APR should be realistic for each protocol
-4. Focus on the specified categories
-5. Provide at least 2 different investments for diversification`;
+3. Focus on projects of the specified categories
+4. Provide at least 2 different investments for diversification`;
 }
 
 function extractInvestments(response: string): Array<{
