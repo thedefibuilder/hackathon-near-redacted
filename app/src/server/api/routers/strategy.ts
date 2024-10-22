@@ -118,35 +118,37 @@ export const strategyRouter = createTRPCRouter({
         }
 
         // Start a transaction to update strategy and investments
-        const updatedStrategy = await ctx.db.$transaction(async (prisma) => {
-          // Update strategy
-          const strategy = await prisma.strategy.update({
-            where: { id: input.strategyId },
-            data: updateData,
-          });
-
-          // If new investments provided, replace existing ones
-          if (input.investments) {
-            // Delete existing investments
-            await prisma.investment.deleteMany({
-              where: { strategyId: input.strategyId },
+        const updatedStrategy = await ctx.db.$transaction(
+          async (prisma: typeof ctx.db) => {
+            // Update strategy
+            const strategy = await prisma.strategy.update({
+              where: { id: input.strategyId },
+              data: updateData,
             });
 
-            // Create new investments
-            await prisma.investment.createMany({
-              data: input.investments.map((inv) => ({
-                ...inv,
-                strategyId: input.strategyId,
-              })),
-            });
-          }
+            // If new investments provided, replace existing ones
+            if (input.investments) {
+              // Delete existing investments
+              await prisma.investment.deleteMany({
+                where: { strategyId: input.strategyId },
+              });
 
-          // Return updated strategy with investments
-          return prisma.strategy.findUnique({
-            where: { id: input.strategyId },
-            include: { investments: true },
-          });
-        });
+              // Create new investments
+              await prisma.investment.createMany({
+                data: input.investments.map((inv) => ({
+                  ...inv,
+                  strategyId: input.strategyId,
+                })),
+              });
+            }
+
+            // Return updated strategy with investments
+            return prisma.strategy.findUnique({
+              where: { id: input.strategyId },
+              include: { investments: true },
+            });
+          },
+        );
 
         if (!updatedStrategy) {
           throw new TRPCError({

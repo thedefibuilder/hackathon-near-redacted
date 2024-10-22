@@ -58,12 +58,16 @@ export async function generateInvestmentAdvice({
       .filter((msg) => msg.role === "assistant")
       .pop();
 
-    if (!lastMessage) {
-      throw new Error("No response from assistant");
+    if (
+      !lastMessage ||
+      !lastMessage.content[0] ||
+      !("text" in lastMessage.content[0])
+    ) {
+      throw new Error("Invalid response format from assistant");
     }
 
-    // Parse the JSON response
     const responseText = lastMessage.content[0].text.value;
+
     const investments = extractInvestments(responseText);
 
     return investments;
