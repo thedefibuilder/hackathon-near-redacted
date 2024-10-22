@@ -4,6 +4,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { farmSchema, FarmCategories } from "@/lib/schemas/schema";
 import { TRPCError } from "@trpc/server";
+import { generateInvestmentAdvice } from "@/lib/openai";
 
 // Schema for investments in the database
 const investmentSchema = z.object({
@@ -14,11 +15,11 @@ const investmentSchema = z.object({
   amount: z.number(),
 });
 
-// Schema for the generate endpoint, matching the farm form
+// Schema for generating new strategies
 const generateStrategyInput = z.object({
   categories: z.array(z.nativeEnum(FarmCategories)),
   risk: z.number().min(0).max(100),
-  neat: z.string(), // Amount in NEAR tokens
+  neat: z.string(),
   time: z.date(),
   userId: z.string(),
 });
@@ -53,8 +54,8 @@ export const strategyRouter = createTRPCRouter({
           });
         }
 
-        // Generate investment strategy based on input parameters
-        const generatedInvestments = await generateInvestmentStrategy({
+        // Generate investment strategy using OpenAI
+        const generatedInvestments = await generateInvestmentAdvice({
           categories: input.categories,
           risk: input.risk,
           amount: nearAmount,
@@ -147,6 +148,13 @@ export const strategyRouter = createTRPCRouter({
           });
         });
 
+        if (!updatedStrategy) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to update strategy",
+          });
+        }
+
         return updatedStrategy;
       } catch (error) {
         if (error instanceof TRPCError) throw error;
@@ -214,83 +222,3 @@ export const strategyRouter = createTRPCRouter({
       }
     }),
 });
-
-// Helper function to generate investment strategy (placeholder for now)
-async function generateInvestmentStrategy({
-  categories,
-  risk,
-  amount,
-  time,
-}: {
-  categories: FarmCategories[];
-  risk: number;
-  amount: number;
-  time: Date;
-}): Promise<
-  Array<{
-    chain: string;
-    protocol: string;
-    pool: string;
-    APR: string;
-    amount: number;
-  }>
-> {
-  // TODO: Implement actual strategy generation logic
-  // This is a placeholder that returns a sample investment distribution
-
-  // Example risk-based allocation
-  const investments = [];
-  const totalAmount = amount;
-
-  if (risk < 33) {
-    // Low risk strategy
-    investments.push({
-      chain: "Multi-Chain",
-      protocol: "Stable Protocol",
-      pool: "USDC-USDT LP",
-      APR: "5-8%",
-      amount: totalAmount * 0.7,
-    });
-    investments.push({
-      chain: "Ethereum",
-      protocol: "Safe Yield",
-      pool: "Stablecoin Vault",
-      APR: "4-6%",
-      amount: totalAmount * 0.3,
-    });
-  } else if (risk < 66) {
-    // Medium risk strategy
-    investments.push({
-      chain: "Ethereum",
-      protocol: "Balanced Yield",
-      pool: "ETH-USDC LP",
-      APR: "10-15%",
-      amount: totalAmount * 0.5,
-    });
-    investments.push({
-      chain: "Multi-Chain",
-      protocol: "Yield Aggregator",
-      pool: "Mixed Assets",
-      APR: "8-12%",
-      amount: totalAmount * 0.5,
-    });
-  } else {
-    // High risk strategy
-    investments.push({
-      chain: "Multi-Chain",
-      protocol: "Leverage Protocol",
-      pool: "Leveraged Yield",
-      APR: "20-30%",
-      amount: totalAmount * 0.6,
-    });
-    investments.push({
-      chain: "Ethereum",
-      protocol: "High Yield Farm",
-      pool: "Volatile Assets",
-      APR: "15-25%",
-      amount: totalAmount * 0.4,
-    });
-  }
-
-  return investments;
-}
