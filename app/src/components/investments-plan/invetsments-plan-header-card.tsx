@@ -14,7 +14,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import ModalForm from "../modal-form";
-import { TInvestmentPlanHeaderCard } from "./investments-plan";
+import { InvestmentPlanHeaderCard } from "./investments-plan";
 
 export default function InvestmentPlanHeaderCard({
   aiRisk,
@@ -22,7 +22,7 @@ export default function InvestmentPlanHeaderCard({
   title,
   estimatePnl,
   investmentInfo,
-}: TInvestmentPlanHeaderCard) {
+}: InvestmentPlanHeaderCard) {
   return (
     <>
       <div className="flex w-full items-center justify-between">

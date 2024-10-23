@@ -14,7 +14,7 @@ import {
 import InvestmentPlanHeaderCard from "./invetsments-plan-header-card";
 import InvestmentPlanMainCard from "./investment-plan-main-card";
 
-export type TInvestmentPlanHeaderCard = {
+export type InvestmentPlanHeaderCard = {
   aiRisk: number;
   generatedDate: string;
   title: string;
