@@ -13,12 +13,17 @@ import {
 } from "../ui/dialog";
 import ModalForm from "../modal-form";
 import { type InvestmentPlanHeaderCardProps } from "@/lib/schemas/investment-types";
+import {
+  formatCurrency,
+  formatPercent,
+} from "@/lib/utils/investment-calculations";
 
 export default function InvestmentPlanHeaderCard({
   aiRisk,
   generatedDate,
   title,
-  estimatePnl,
+  estimatedPnL,
+  averageAPR,
   investmentInfo,
 }: InvestmentPlanHeaderCardProps) {
   const formatValue = (value: number | string | Date | undefined) => {
@@ -58,11 +63,11 @@ export default function InvestmentPlanHeaderCard({
         </p>
         <div className="flex w-1/3 items-center justify-end gap-3">
           <div className="rounded bg-black px-2 py-1">
-            <p>+ ${estimatePnl}</p>
+            <p>+{formatCurrency(estimatedPnL)}</p>
           </div>
           <div className="flex items-center gap-1 rounded bg-black px-2 py-1 text-primary">
             <IconTriangleFilled stroke={2} className="h-2 w-2" />
-            <p>99% APR</p>
+            <p>{formatPercent(averageAPR)} APR</p>
           </div>
         </div>
       </div>
@@ -120,11 +125,11 @@ export default function InvestmentPlanHeaderCard({
                 </p>
                 <div className="flex w-1/3 items-center justify-end gap-3">
                   <div className="rounded bg-black px-2 py-1">
-                    <p>+ ${estimatePnl}</p>
+                    <p>+{formatCurrency(estimatedPnL)}</p>
                   </div>
                   <div className="flex items-center gap-1 rounded bg-black px-2 py-1 text-primary">
                     <IconTriangleFilled stroke={2} className="h-2 w-2" />
-                    <p>99%</p>
+                    <p>{formatPercent(averageAPR)} APR</p>
                   </div>
                 </div>
               </div>

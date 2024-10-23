@@ -20,6 +20,11 @@ import {
   type Investment,
 } from "@/lib/schemas/investment-types";
 import InvestmentSkeleton from "./investment-skeleton";
+import {
+  calculateAverageAPR,
+  calculateEstimatedPnL,
+  formatCurrency,
+} from "@/lib/utils/investment-calculations";
 
 export default function InvestmentsPlan() {
   const { currentStrategy, isLoading } = useStrategyStore();
@@ -37,10 +42,18 @@ export default function InvestmentsPlan() {
   }
 
   const getRiskLevel = (apr: number | null): InvestmentRiskLevel => {
-    if (!apr || apr < 1) return InvestmentRiskLevel.LOW;
-    if (apr < 2) return InvestmentRiskLevel.MEDIUM;
+    if (!apr || apr < 50) return InvestmentRiskLevel.LOW;
+    if (apr < 100) return InvestmentRiskLevel.MEDIUM;
     return InvestmentRiskLevel.HIGH;
   };
+
+  // Calculate metrics
+  const averageAPR = calculateAverageAPR(currentStrategy.investments);
+  const estimatedPnL = calculateEstimatedPnL(currentStrategy.investments);
+  const totalInvestment = currentStrategy.investments.reduce(
+    (sum, inv) => sum + inv.amount,
+    0,
+  );
 
   // Transform API investments to UI format
   const transformedInvestments: Investment[] = currentStrategy.investments.map(
@@ -54,14 +67,23 @@ export default function InvestmentsPlan() {
     }),
   );
 
+  // Extract categories from generation prompt
+  const categories = currentStrategy.generationPrompt
+    ? (() => {
+        const parts = currentStrategy.generationPrompt.split("categories: ");
+        return parts[1]
+          ? parts[1].split(", ").join(" & ")
+          : "No categories available";
+      })()
+    : "No categories available";
+
   const strategyData = {
-    aiRisk: 3, // This could come from the AI model
+    aiRisk: Math.floor(averageAPR), // Using average APR as AI risk indicator
     generatedDate: new Date(currentStrategy.createdAt).toLocaleDateString(),
-    title: "Investment Strategy",
-    estimatePnl: currentStrategy.investments.reduce(
-      (sum, inv) => sum + inv.amount,
-      0,
-    ),
+    title: `${categories} Strategy`,
+    estimatedPnL: estimatedPnL,
+    estimatePnl: estimatedPnL,
+    averageAPR: averageAPR,
     investmentInfo: [
       {
         icon: IconBox,
@@ -76,18 +98,18 @@ export default function InvestmentsPlan() {
       },
       {
         icon: IconWallet,
-        name: "$",
-        value: currentStrategy.investments.reduce(
-          (sum, inv) => sum + inv.amount,
-          0,
-        ),
+        name: "Total Investment",
+        value: formatCurrency(totalInvestment),
       },
-      { icon: IconCalendarTime, value: "6 months" }, // This could be configurable
+      {
+        icon: IconCalendarTime,
+        value: "Annual Projection",
+      },
     ],
   };
 
   return (
-    <Accordion type="single" collapsible>
+    <Accordion type="single" collapsible defaultValue="strategy">
       <AccordionItem
         value="strategy"
         className="mb-4 rounded-[34px] border-none bg-foreground p-4 text-white"

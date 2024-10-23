@@ -5,31 +5,10 @@ import { z } from "zod";
 export enum InvestmentRiskLevel {
   LOW = "Low Risk",
   MEDIUM = "Medium Risk",
-  HIGH = "High Risk", // Fixed typo
+  HIGH = "High Risk",
 }
 
-// API Types (matching backend)
-export interface APIInvestment {
-  id: string;
-  strategyId: string;
-  chain: string;
-  protocol: string;
-  pool: string;
-  APR: number | null;
-  amount: number;
-}
-
-export interface APIStrategy {
-  id: string;
-  userId: string;
-  createdAt: string;
-  isFavorite: boolean;
-  isActive: boolean;
-  generationPrompt: string;
-  investments: APIInvestment[];
-}
-
-// UI Types
+// Base Types
 export type InvestmentInfo = {
   icon: TablerIcon;
   name?: string;
@@ -50,7 +29,8 @@ export type InvestmentPlanHeaderCardProps = {
   aiRisk: number;
   generatedDate: string;
   title: string;
-  estimatePnl: number;
+  estimatedPnL: number;
+  averageAPR: number; // Added this field
   investmentInfo: InvestmentInfo[];
 };
 
@@ -63,9 +43,30 @@ export type InvestmentPlanMainCardProps = InvestmentPlanCardProps & {
   isEditing?: boolean;
 };
 
+// API Types
+export interface APIInvestment {
+  id: string;
+  strategyId: string;
+  chain: string;
+  protocol: string;
+  pool: string;
+  APR: number | null;
+  amount: number;
+}
+
+export interface APIStrategy {
+  id: string;
+  userId: string;
+  createdAt: string;
+  isFavorite: boolean;
+  isActive: boolean;
+  generationPrompt: string;
+  investments: APIInvestment[];
+}
+
 // Zod Schemas
 export const investmentInfoSchema = z.object({
-  icon: z.any(), // TablerIcon type
+  icon: z.any(),
   name: z.string().optional(),
   value: z.union([z.number(), z.string(), z.date(), z.undefined()]),
 });
@@ -83,7 +84,8 @@ export const investmentPlanHeaderSchema = z.object({
   aiRisk: z.number().min(0).max(100),
   generatedDate: z.string(),
   title: z.string(),
-  estimatePnl: z.number(),
+  estimatedPnL: z.number(),
+  averageAPR: z.number(),
   investmentInfo: z.array(investmentInfoSchema),
 });
 
