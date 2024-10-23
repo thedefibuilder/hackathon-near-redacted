@@ -118,7 +118,7 @@ export default function InvestmentsPlan() {
           <InvestmentPlanHeaderCard {...strategyData} />
         </AccordionTrigger>
         <div className="h-8" />
-        <AccordionContent className="border-t-2">
+        <AccordionContent className="border-t border-opacity-10">
           <div className="h-8" />
           <InvestmentPlanMainCard investment={transformedInvestments} />
         </AccordionContent>

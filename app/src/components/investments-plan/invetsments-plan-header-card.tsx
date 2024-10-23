@@ -58,10 +58,10 @@ export default function InvestmentPlanHeaderCard({
       <h1 className="text-[32px] text-white">{title}</h1>
       <div className="h-2" />
       <div className="flex w-full items-center justify-between">
-        <p className="w-4/6 text-left text-primary">
+        <p className="w-auto text-left text-primary">
           Estimated PnL & APR Over The Investment Period
         </p>
-        <div className="flex w-1/3 items-center justify-end gap-3">
+        <div className="flex w-auto items-center justify-end gap-3">
           <div className="rounded bg-black px-2 py-1">
             <p>+{formatCurrency(estimatedPnL)}</p>
           </div>

@@ -145,14 +145,22 @@ export default function InvestmentPlanMainCard({
         {investment.map((item, index) => {
           const percentage = (item.usdValue / totalValue) * 100;
           return (
-            <div
-              key={index}
-              style={{
-                width: `${percentage}%`,
-                backgroundColor: getChainColor(item.chain),
-              }}
-              className={cn(["h-full"])}
-            />
+            <Tooltip key={index}>
+              <TooltipTrigger asChild>
+                <div
+                  style={{
+                    width: `${percentage}%`,
+                    backgroundColor: getChainColor(item.chain),
+                  }}
+                  className={cn(["h-full cursor-default"])}
+                />
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white">
+                <p>
+                  {item.chain}: {percentage.toFixed(1)}%
+                </p>
+              </TooltipContent>
+            </Tooltip>
           );
         })}
       </div>
