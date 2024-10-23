@@ -10,6 +10,12 @@ import {
   getChainIcon,
   handleImageError,
 } from "@/lib/utils/protocol-utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function InvestmentPlanMainCard({
   investment,
@@ -39,7 +45,7 @@ export default function InvestmentPlanMainCard({
   };
 
   return (
-    <>
+    <TooltipProvider>
       <div className="flex flex-wrap gap-4">
         {investment.map((item, index) => (
           <div key={index} className="w-[calc(50%-0.5rem)]">
@@ -71,14 +77,23 @@ export default function InvestmentPlanMainCard({
 
                 {/* Chain Icon - Smaller and overlaid in the bottom right */}
                 <div className="absolute -bottom-0 -right-0">
-                  <Image
-                    src={getChainIcon(item.chain)}
-                    alt={`${item.chain} icon`}
-                    width={24}
-                    height={24}
-                    className="rounded-full ring-2 ring-background"
-                    onError={handleImageError}
-                  />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <Image
+                          src={getChainIcon(item.chain)}
+                          alt={`${item.chain} icon`}
+                          width={24}
+                          height={24}
+                          className="rounded-full ring-2 ring-background"
+                          onError={handleImageError}
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-black text-white">
+                      <p>{item.chain}</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
 
@@ -143,6 +158,6 @@ export default function InvestmentPlanMainCard({
           );
         })}
       </div>
-    </>
+    </TooltipProvider>
   );
 }
