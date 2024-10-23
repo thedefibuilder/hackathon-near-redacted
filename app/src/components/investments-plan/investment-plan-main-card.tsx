@@ -56,23 +56,30 @@ export default function InvestmentPlanMainCard({
                 ])}
               />
 
-              <div className="flex w-4/12 items-center justify-center space-x-2">
-                <Image
-                  src={getProtocolIcon(item.protocol)}
-                  alt={`${item.protocol} icon`}
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                  onError={handleImageError}
-                />
-                <Image
-                  src={getChainIcon(item.chain)}
-                  alt={`${item.chain} icon`}
-                  width={24}
-                  height={24}
-                  className="rounded-full"
-                  onError={handleImageError}
-                />
+              <div className="relative w-4/12 max-w-[80px]">
+                {/* Protocol Icon - Larger and in the background */}
+                <div className="flex h-20 w-20 items-center justify-center">
+                  <Image
+                    src={getProtocolIcon(item.protocol)}
+                    alt={`${item.protocol} icon`}
+                    width={80}
+                    height={80}
+                    className="rounded-full bg-white/10 p-1"
+                    onError={handleImageError}
+                  />
+                </div>
+
+                {/* Chain Icon - Smaller and overlaid in the bottom right */}
+                <div className="absolute -bottom-0 -right-0">
+                  <Image
+                    src={getChainIcon(item.chain)}
+                    alt={`${item.chain} icon`}
+                    width={24}
+                    height={24}
+                    className="rounded-full ring-2 ring-background"
+                    onError={handleImageError}
+                  />
+                </div>
               </div>
 
               <div className="w-3/5 pb-3">
