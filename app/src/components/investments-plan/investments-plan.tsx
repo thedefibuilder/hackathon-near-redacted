@@ -26,7 +26,7 @@ export type TInvestmentPlanHeaderCard = {
   }[];
 };
 
-export type TInvestmentPlanCard = {
+export type InvestmentPlanCard = {
   investment: {
     img: string;
     currency: string;

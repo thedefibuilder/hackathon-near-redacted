@@ -2,9 +2,9 @@ import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 import { IconMinus } from "@tabler/icons-react";
-import { TInvestmentPlanCard } from "./investments-plan";
+import { InvestmentPlanCard } from "./investments-plan";
 
-interface InvestmentPlanMainCardProps extends TInvestmentPlanCard {
+interface InvestmentPlanMainCardProps extends InvestmentPlanCard {
   onRemove?: (index: number) => void;
   isEditing?: boolean;
 }
@@ -77,7 +77,7 @@ export default function InvestmentPlanMainCard({
                 <button
                   type="button"
                   onClick={() => onRemove(index)}
-                  className="text-red-500 hover:text-red-700 rounded-full border border-red-500 h-6 w-6 flex items-center absolute top-4 right-4"
+                  className="absolute right-4 top-4 flex h-6 w-6 items-center rounded-full border border-red-500 text-red-500 hover:text-red-700"
                 >
                   <IconMinus stroke={2} />
                 </button>
