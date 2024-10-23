@@ -3,7 +3,6 @@ import {
   IconCalendarTime,
   IconPig,
   IconWallet,
-  TablerIcon,
 } from "@tabler/icons-react";
 import {
   Accordion,
@@ -13,29 +12,13 @@ import {
 } from "../ui/accordion";
 import InvestmentPlanHeaderCard from "./invetsments-plan-header-card";
 import InvestmentPlanMainCard from "./investment-plan-main-card";
+import {
+  type InvestmentPlanHeaderCardProps,
+  type InvestmentPlanCardProps,
+  InvestmentRiskLevel,
+} from "@/lib/schemas/investment-types";
 
-export type TInvestmentPlanHeaderCard = {
-  aiRisk: number;
-  generatedDate: string;
-  title: string;
-  estimatePnl: number;
-  investmentInfo: {
-    icon: TablerIcon;
-    name?: string;
-    value: number | string | Date | undefined;
-  }[];
-};
-
-export type TInvestmentPlanCard = {
-  investment: {
-    img: string;
-    currency: string;
-    usdValue: number;
-    risk: string;
-  }[];
-};
-
-const investmentPlanHeader = [
+const investmentPlanHeader: InvestmentPlanHeaderCardProps[] = [
   {
     aiRisk: 3,
     generatedDate: "2024-10-20",
@@ -50,32 +33,32 @@ const investmentPlanHeader = [
   },
 ];
 
-export const investmentPlan = [
+export const investmentPlan: InvestmentPlanCardProps[] = [
   {
     investment: [
       {
         img: "/sushi-swap.png",
         currency: "TAO/USDT",
         usdValue: 4000,
-        risk: "Low Risk",
+        risk: InvestmentRiskLevel.LOW,
       },
       {
         img: "/akash.png",
         currency: "TAO/USDT",
         usdValue: 5000,
-        risk: "Medium Risk",
+        risk: InvestmentRiskLevel.MEDIUM,
       },
       {
         img: "/cream.png",
         currency: "USDT",
         usdValue: 2000,
-        risk: "Medium Risk",
+        risk: InvestmentRiskLevel.MEDIUM,
       },
       {
         img: "/quorum.png",
         currency: "USDC",
         usdValue: 1000,
-        risk: "Height Risk",
+        risk: InvestmentRiskLevel.HIGH,
       },
     ],
   },
@@ -83,7 +66,7 @@ export const investmentPlan = [
 
 export default function InvestmentPlan() {
   return (
-    <Accordion type="single" collapsible className="">
+    <Accordion type="single" collapsible>
       {investmentPlanHeader.map((item, index) => (
         <AccordionItem
           key={index}
@@ -91,25 +74,14 @@ export default function InvestmentPlan() {
           className="mb-4 rounded-[34px] border-none bg-foreground p-4 text-white"
         >
           <AccordionTrigger className="flex flex-col items-start hover:no-underline">
-            <InvestmentPlanHeaderCard
-              aiRisk={item.aiRisk}
-              generatedDate={item.generatedDate}
-              title={item.title}
-              estimatePnl={item.estimatePnl}
-              investmentInfo={item.investmentInfo}
-            />
+            <InvestmentPlanHeaderCard {...item} />
           </AccordionTrigger>
           <div className="h-8" />
           <AccordionContent className="border-t-2">
             <div className="h-8" />
-            {investmentPlan.map((item, index) => {
-              return (
-                <InvestmentPlanMainCard
-                  investment={item.investment}
-                  key={index}
-                />
-              );
-            })}
+            {investmentPlan.map((item, index) => (
+              <InvestmentPlanMainCard key={index} {...item} />
+            ))}
           </AccordionContent>
         </AccordionItem>
       ))}

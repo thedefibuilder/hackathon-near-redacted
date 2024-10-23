@@ -1,13 +1,10 @@
 import Image from "next/image";
-
 import { cn } from "@/lib/utils";
 import { IconMinus } from "@tabler/icons-react";
-import { TInvestmentPlanCard } from "./investments-plan";
-
-interface InvestmentPlanMainCardProps extends TInvestmentPlanCard {
-  onRemove?: (index: number) => void;
-  isEditing?: boolean;
-}
+import {
+  type InvestmentPlanMainCardProps,
+  InvestmentRiskLevel,
+} from "@/lib/schemas/investment-types";
 
 export default function InvestmentPlanMainCard({
   investment,
@@ -21,6 +18,19 @@ export default function InvestmentPlanMainCard({
       style: "currency",
       currency: "USD",
     }).format(value);
+  };
+
+  const getRiskColorClasses = (risk: InvestmentRiskLevel) => {
+    switch (risk) {
+      case InvestmentRiskLevel.LOW:
+        return "bg-green-300 text-green-600";
+      case InvestmentRiskLevel.MEDIUM:
+        return "bg-yellow-300 text-yellow-600";
+      case InvestmentRiskLevel.HIGH:
+        return "bg-red-300 text-red-600";
+      default:
+        return "";
+    }
   };
 
   return (
@@ -54,12 +64,7 @@ export default function InvestmentPlanMainCard({
                 <div
                   className={cn([
                     "w-3/5 rounded px-2 py-1 text-center",
-                    {
-                      "bg-green-300 text-green-600": item.risk === "Low Risk",
-                      "bg-yellow-300 text-yellow-600":
-                        item.risk === "Medium Risk",
-                      "bg-red-300 text-red-600": item.risk === "Height Risk",
-                    },
+                    getRiskColorClasses(item.risk),
                   ])}
                 >
                   <p>{item.risk}</p>
@@ -73,15 +78,15 @@ export default function InvestmentPlanMainCard({
                   <p className="text-[12px] text-muted">5.3% APR</p>
                 </div>
               </div>
-              {isEditing && onRemove ? (
+              {isEditing && onRemove && (
                 <button
                   type="button"
                   onClick={() => onRemove(index)}
-                  className="text-red-500 hover:text-red-700 rounded-full border border-red-500 h-6 w-6 flex items-center absolute top-4 right-4"
+                  className="absolute right-4 top-4 flex h-6 w-6 items-center rounded-full border border-red-500 text-red-500 hover:text-red-700"
                 >
                   <IconMinus stroke={2} />
                 </button>
-              ) : null}
+              )}
             </div>
             <div className="h-4" />
           </div>
