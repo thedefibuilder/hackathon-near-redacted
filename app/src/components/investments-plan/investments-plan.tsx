@@ -1,3 +1,5 @@
+"use client";
+
 import {
   IconBox,
   IconCalendarTime,
@@ -12,79 +14,93 @@ import {
 } from "../ui/accordion";
 import InvestmentPlanHeaderCard from "./invetsments-plan-header-card";
 import InvestmentPlanMainCard from "./investment-plan-main-card";
+import { useStrategyStore } from "@/lib/stores/strategy-store";
 import {
-  type InvestmentPlanHeaderCardProps,
-  type InvestmentPlanCardProps,
   InvestmentRiskLevel,
+  type Investment,
 } from "@/lib/schemas/investment-types";
+import InvestmentSkeleton from "./investment-skeleton";
 
-const investmentPlanHeader: InvestmentPlanHeaderCardProps[] = [
-  {
-    aiRisk: 3,
-    generatedDate: "2024-10-20",
-    title: "My Investment Plan 1",
-    estimatePnl: 15000,
+export default function InvestmentsPlan() {
+  const { currentStrategy, isLoading } = useStrategyStore();
+
+  if (isLoading) {
+    return <InvestmentSkeleton />;
+  }
+
+  if (!currentStrategy) {
+    return (
+      <div className="flex h-[400px] items-center justify-center text-muted">
+        <p>Generate a strategy to see investment recommendations</p>
+      </div>
+    );
+  }
+
+  const getRiskLevel = (apr: number | null): InvestmentRiskLevel => {
+    if (!apr || apr < 1) return InvestmentRiskLevel.LOW;
+    if (apr < 2) return InvestmentRiskLevel.MEDIUM;
+    return InvestmentRiskLevel.HIGH;
+  };
+
+  // Transform API investments to UI format
+  const transformedInvestments: Investment[] = currentStrategy.investments.map(
+    (inv) => ({
+      protocol: inv.protocol,
+      chain: inv.chain,
+      pool: inv.pool,
+      usdValue: inv.amount,
+      apr: inv.APR,
+      risk: getRiskLevel(inv.APR),
+    }),
+  );
+
+  const strategyData = {
+    aiRisk: 3, // This could come from the AI model
+    generatedDate: new Date(currentStrategy.createdAt).toLocaleDateString(),
+    title: "Investment Strategy",
+    estimatePnl: currentStrategy.investments.reduce(
+      (sum, inv) => sum + inv.amount,
+      0,
+    ),
     investmentInfo: [
-      { icon: IconBox, name: "Chains", value: 4 },
-      { icon: IconPig, name: "Protocols", value: 3 },
-      { icon: IconWallet, name: "$", value: 12000 },
-      { icon: IconCalendarTime, value: "6 months" },
+      {
+        icon: IconBox,
+        name: "Chains",
+        value: new Set(currentStrategy.investments.map((inv) => inv.chain))
+          .size,
+      },
+      {
+        icon: IconPig,
+        name: "Protocols",
+        value: currentStrategy.investments.length,
+      },
+      {
+        icon: IconWallet,
+        name: "$",
+        value: currentStrategy.investments.reduce(
+          (sum, inv) => sum + inv.amount,
+          0,
+        ),
+      },
+      { icon: IconCalendarTime, value: "6 months" }, // This could be configurable
     ],
-  },
-];
+  };
 
-export const investmentPlan: InvestmentPlanCardProps[] = [
-  {
-    investment: [
-      {
-        img: "/sushi-swap.png",
-        currency: "TAO/USDT",
-        usdValue: 4000,
-        risk: InvestmentRiskLevel.LOW,
-      },
-      {
-        img: "/akash.png",
-        currency: "TAO/USDT",
-        usdValue: 5000,
-        risk: InvestmentRiskLevel.MEDIUM,
-      },
-      {
-        img: "/cream.png",
-        currency: "USDT",
-        usdValue: 2000,
-        risk: InvestmentRiskLevel.MEDIUM,
-      },
-      {
-        img: "/quorum.png",
-        currency: "USDC",
-        usdValue: 1000,
-        risk: InvestmentRiskLevel.HIGH,
-      },
-    ],
-  },
-];
-
-export default function InvestmentPlan() {
   return (
     <Accordion type="single" collapsible>
-      {investmentPlanHeader.map((item, index) => (
-        <AccordionItem
-          key={index}
-          value={`item-${index}`}
-          className="mb-4 rounded-[34px] border-none bg-foreground p-4 text-white"
-        >
-          <AccordionTrigger className="flex flex-col items-start hover:no-underline">
-            <InvestmentPlanHeaderCard {...item} />
-          </AccordionTrigger>
+      <AccordionItem
+        value="strategy"
+        className="mb-4 rounded-[34px] border-none bg-foreground p-4 text-white"
+      >
+        <AccordionTrigger className="flex flex-col items-start hover:no-underline">
+          <InvestmentPlanHeaderCard {...strategyData} />
+        </AccordionTrigger>
+        <div className="h-8" />
+        <AccordionContent className="border-t-2">
           <div className="h-8" />
-          <AccordionContent className="border-t-2">
-            <div className="h-8" />
-            {investmentPlan.map((item, index) => (
-              <InvestmentPlanMainCard key={index} {...item} />
-            ))}
-          </AccordionContent>
-        </AccordionItem>
-      ))}
+          <InvestmentPlanMainCard investment={transformedInvestments} />
+        </AccordionContent>
+      </AccordionItem>
     </Accordion>
   );
 }

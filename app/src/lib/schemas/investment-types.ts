@@ -5,10 +5,31 @@ import { z } from "zod";
 export enum InvestmentRiskLevel {
   LOW = "Low Risk",
   MEDIUM = "Medium Risk",
-  HIGH = "Height Risk", // Note: You might want to fix the typo from "Height" to "High"
+  HIGH = "High Risk", // Fixed typo
 }
 
-// Base Types
+// API Types (matching backend)
+export interface APIInvestment {
+  id: string;
+  strategyId: string;
+  chain: string;
+  protocol: string;
+  pool: string;
+  APR: number | null;
+  amount: number;
+}
+
+export interface APIStrategy {
+  id: string;
+  userId: string;
+  createdAt: string;
+  isFavorite: boolean;
+  isActive: boolean;
+  generationPrompt: string;
+  investments: APIInvestment[];
+}
+
+// UI Types
 export type InvestmentInfo = {
   icon: TablerIcon;
   name?: string;
@@ -16,9 +37,11 @@ export type InvestmentInfo = {
 };
 
 export type Investment = {
-  img: string;
-  currency: string;
+  protocol: string;
+  chain: string;
+  pool: string;
   usdValue: number;
+  apr: number | null;
   risk: InvestmentRiskLevel;
 };
 
@@ -48,9 +71,11 @@ export const investmentInfoSchema = z.object({
 });
 
 export const investmentSchema = z.object({
-  img: z.string().url(),
-  currency: z.string(),
+  protocol: z.string(),
+  chain: z.string(),
+  pool: z.string(),
   usdValue: z.number().positive(),
+  apr: z.number().nullable(),
   risk: z.nativeEnum(InvestmentRiskLevel),
 });
 

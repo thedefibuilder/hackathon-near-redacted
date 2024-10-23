@@ -21,10 +21,16 @@ import { Label } from "../ui/label";
 import { DatePicker } from "../ui/date-picker";
 import { api } from "@/trpc/react";
 import { useToast } from "../ui/toast-provider";
+import { useStrategyStore } from "@/lib/stores/strategy-store";
 
 export default function FarmsForm() {
   const { toast } = useToast();
+  const { addStrategy, setLoading } = useStrategyStore();
+
   const generateStrategy = api.strategy.generate.useMutation({
+    onMutate: () => {
+      setLoading(true);
+    },
     onSuccess: (data) => {
       toast({
         title: "Strategy Generated",
@@ -32,8 +38,10 @@ export default function FarmsForm() {
           "Your investment strategy has been generated successfully.",
         type: "foreground",
       });
-      // TODO: Handle the generated strategy data
-      console.log("Generated strategy:", data);
+
+      if (data.strategy) {
+        addStrategy(data.strategy);
+      }
     },
     onError: (error) => {
       toast({
@@ -42,6 +50,9 @@ export default function FarmsForm() {
         type: "foreground",
         duration: 6000,
       });
+    },
+    onSettled: () => {
+      setLoading(false);
     },
   });
 

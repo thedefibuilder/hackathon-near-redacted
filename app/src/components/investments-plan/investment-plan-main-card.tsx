@@ -5,6 +5,11 @@ import {
   type InvestmentPlanMainCardProps,
   InvestmentRiskLevel,
 } from "@/lib/schemas/investment-types";
+import {
+  getProtocolIcon,
+  getChainIcon,
+  handleImageError,
+} from "@/lib/utils/protocol-utils";
 
 export default function InvestmentPlanMainCard({
   investment,
@@ -51,15 +56,25 @@ export default function InvestmentPlanMainCard({
                 ])}
               />
 
-              <div className="flex w-4/12 justify-center">
+              <div className="flex w-4/12 items-center justify-center space-x-2">
                 <Image
-                  src={item.img}
-                  alt="img"
-                  width={64}
-                  height={64}
-                  className="h-16 w-16"
+                  src={getProtocolIcon(item.protocol)}
+                  alt={`${item.protocol} icon`}
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                  onError={handleImageError}
+                />
+                <Image
+                  src={getChainIcon(item.chain)}
+                  alt={`${item.chain} icon`}
+                  width={24}
+                  height={24}
+                  className="rounded-full"
+                  onError={handleImageError}
                 />
               </div>
+
               <div className="w-3/5 pb-3">
                 <div
                   className={cn([
@@ -70,14 +85,19 @@ export default function InvestmentPlanMainCard({
                   <p>{item.risk}</p>
                 </div>
                 <div className="h-4" />
-                <p className="text-[12px] text-white">{item.currency}</p>
+                <p className="text-[12px] text-white">{item.pool}</p>
                 <div className="flex items-center gap-3">
                   <p className="text-xl font-bold">
                     {formatCurrency(item.usdValue)}
                   </p>
-                  <p className="text-[12px] text-muted">5.3% APR</p>
+                  {item.apr && (
+                    <p className="text-[12px] text-muted">
+                      {item.apr.toFixed(2)}% APR
+                    </p>
+                  )}
                 </div>
               </div>
+
               {isEditing && onRemove && (
                 <button
                   type="button"
@@ -92,6 +112,7 @@ export default function InvestmentPlanMainCard({
           </div>
         ))}
       </div>
+
       <div className="h-4" />
       <p className="text-xl">Funds distribution</p>
       <div className="h-4" />
