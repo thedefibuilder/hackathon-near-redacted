@@ -1,9 +1,10 @@
+"use client";
+
 import {
   IconBox,
   IconCalendarTime,
   IconPig,
   IconWallet,
-  TablerIcon,
 } from "@tabler/icons-react";
 import {
   Accordion,
@@ -13,106 +14,116 @@ import {
 } from "../ui/accordion";
 import InvestmentPlanHeaderCard from "./invetsments-plan-header-card";
 import InvestmentPlanMainCard from "./investment-plan-main-card";
+import { useStrategyStore } from "@/lib/stores/strategy-store";
+import {
+  InvestmentRiskLevel,
+  type Investment,
+} from "@/lib/schemas/investment-types";
+import InvestmentSkeleton from "./investment-skeleton";
+import {
+  calculateAverageAPR,
+  calculateEstimatedPnL,
+  formatCurrency,
+} from "@/lib/utils/investment-calculations";
 
-export type InvestmentPlanHeaderCard = {
-  aiRisk: number;
-  generatedDate: string;
-  title: string;
-  estimatePnl: number;
-  investmentInfo: {
-    icon: TablerIcon;
-    name?: string;
-    value: number | string | Date | undefined;
-  }[];
-};
+export default function InvestmentsPlan() {
+  const { currentStrategy, isLoading } = useStrategyStore();
 
-export type InvestmentPlanCard = {
-  investment: {
-    img: string;
-    currency: string;
-    usdValue: number;
-    risk: string;
-  }[];
-};
+  if (isLoading) {
+    return <InvestmentSkeleton />;
+  }
 
-const investmentPlanHeader = [
-  {
-    aiRisk: 3,
-    generatedDate: "2024-10-20",
-    title: "My Investment Plan 1",
-    estimatePnl: 15000,
+
+  if (!currentStrategy) {
+    return (
+      <div className="flex h-[400px] items-center justify-center text-muted">
+        <p>Generate a strategy to see investment recommendations</p>
+      </div>
+    );
+  }
+
+  const getRiskLevel = (apr: number | null): InvestmentRiskLevel => {
+    if (!apr || apr < 50) return InvestmentRiskLevel.LOW;
+    if (apr < 100) return InvestmentRiskLevel.MEDIUM;
+    return InvestmentRiskLevel.HIGH;
+  };
+
+  // Calculate metrics
+  const averageAPR = calculateAverageAPR(currentStrategy.investments);
+  const estimatedPnL = calculateEstimatedPnL(currentStrategy.investments);
+  const totalInvestment = currentStrategy.investments.reduce(
+    (sum, inv) => sum + inv.amount,
+    0,
+  );
+
+  // Transform API investments to UI format
+  const transformedInvestments: Investment[] = currentStrategy.investments.map(
+    (inv) => ({
+      protocol: inv.protocol,
+      chain: inv.chain,
+      pool: inv.pool,
+      usdValue: inv.amount,
+      apr: inv.APR,
+      risk: getRiskLevel(inv.APR),
+    }),
+  );
+
+  // Extract categories from generation prompt
+  const categories = currentStrategy.generationPrompt
+    ? (() => {
+        const parts = currentStrategy.generationPrompt.split("categories: ");
+        return parts[1]
+          ? parts[1].split(", ").join(" & ")
+          : "No categories available";
+      })()
+    : "No categories available";
+
+  const strategyData = {
+    aiRisk: Math.floor(averageAPR), // Using average APR as AI risk indicator
+    generatedDate: new Date(currentStrategy.createdAt).toLocaleDateString(),
+    title: `${categories} Strategy`,
+    estimatedPnL: estimatedPnL,
+    estimatePnl: estimatedPnL,
+    averageAPR: averageAPR,
     investmentInfo: [
-      { icon: IconBox, name: "Chains", value: 4 },
-      { icon: IconPig, name: "Protocols", value: 3 },
-      { icon: IconWallet, name: "$", value: 12000 },
-      { icon: IconCalendarTime, value: "6 months" },
-    ],
-  },
-];
-
-export const investmentPlan = [
-  {
-    investment: [
       {
-        img: "/sushi-swap.png",
-        currency: "TAO/USDT",
-        usdValue: 4000,
-        risk: "Low Risk",
+        icon: IconBox,
+        name: "Chains",
+        value: new Set(currentStrategy.investments.map((inv) => inv.chain))
+          .size,
       },
       {
-        img: "/akash.png",
-        currency: "TAO/USDT",
-        usdValue: 5000,
-        risk: "Medium Risk",
+        icon: IconPig,
+        name: "Protocols",
+        value: currentStrategy.investments.length,
       },
       {
-        img: "/cream.png",
-        currency: "USDT",
-        usdValue: 2000,
-        risk: "Medium Risk",
+        icon: IconWallet,
+        name: "Total Investment",
+        value: formatCurrency(totalInvestment),
       },
       {
-        img: "/quorum.png",
-        currency: "USDC",
-        usdValue: 1000,
-        risk: "Height Risk",
+        icon: IconCalendarTime,
+        value: "Annual Projection",
       },
     ],
-  },
-];
+  };
 
-export default function InvestmentPlan() {
   return (
-    <Accordion type="single" collapsible className="">
-      {investmentPlanHeader.map((item, index) => (
-        <AccordionItem
-          key={index}
-          value={`item-${index}`}
-          className="mb-4 rounded-[34px] border-none bg-foreground p-4 text-white"
-        >
-          <AccordionTrigger className="flex flex-col items-start hover:no-underline">
-            <InvestmentPlanHeaderCard
-              aiRisk={item.aiRisk}
-              generatedDate={item.generatedDate}
-              title={item.title}
-              estimatePnl={item.estimatePnl}
-              investmentInfo={item.investmentInfo}
-            />
-          </AccordionTrigger>
+    <Accordion type="single" collapsible defaultValue="strategy">
+      <AccordionItem
+        value="strategy"
+        className="mb-4 rounded-[34px] border-none bg-foreground p-4 text-white"
+      >
+        <AccordionTrigger className="flex flex-col items-start hover:no-underline">
+          <InvestmentPlanHeaderCard {...strategyData} />
+        </AccordionTrigger>
+        <div className="h-8" />
+        <AccordionContent className="border-t border-opacity-10">
           <div className="h-8" />
-          <AccordionContent className="border-t-2">
-            <div className="h-8" />
-            {investmentPlan.map((item, index) => {
-              return (
-                <InvestmentPlanMainCard
-                  investment={item.investment}
-                  key={index}
-                />
-              );
-            })}
-          </AccordionContent>
-        </AccordionItem>
-      ))}
+          <InvestmentPlanMainCard investment={transformedInvestments} />
+        </AccordionContent>
+      </AccordionItem>
     </Accordion>
   );
 }
