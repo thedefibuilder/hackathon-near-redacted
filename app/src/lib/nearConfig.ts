@@ -1,5 +1,7 @@
 import { connect, keyStores, WalletConnection } from "near-api-js";
 
+export const CHAIN_SIGNATURE_CONTRACT = "v1.signer-prod.testnet";
+
 const getNearConfig = () => {
   if (typeof window === "undefined") {
     return null;
@@ -31,14 +33,26 @@ export const initNear = async () => {
 };
 
 export const login = async (wallet: WalletConnection) => {
-  console.log("Requesting sign-in...");
   await wallet.requestSignIn({
     keyType: "ed25519",
   });
-  console.log("Sign-in request sent.");
 };
 
 export const logout = async (wallet: WalletConnection) => {
   wallet.signOut();
-  window.location.reload(); 
+  window.location.reload();
+};
+
+export const chainsConfig = {
+  ethereum: {
+    providerUrl:
+      "https://sepolia.infura.io/v3/6df51ccaa17f4e078325b5050da5a2dd",
+    scanUrl: "https://etherscan.io",
+    name: "ETH",
+  },
+  bsc: {
+    providerUrl: "https://data-seed-prebsc-1-s1.bnbchain.org:8545",
+    scanUrl: "https://testnet.bscscan.com",
+    name: "BNB",
+  },
 };

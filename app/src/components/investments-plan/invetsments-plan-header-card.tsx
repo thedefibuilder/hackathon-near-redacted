@@ -1,3 +1,5 @@
+"use client";
+
 import {
   IconBookmark,
   IconEdit,
@@ -8,13 +10,13 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
 import ModalForm from "../modal-form";
 import { TInvestmentPlanHeaderCard } from "./investments-plan";
+import useNearTransaction from "@/lib/hooks/use-near-tx";
+import { Button } from "react-day-picker";
 
 export default function InvestmentPlanHeaderCard({
   aiRisk,
@@ -23,6 +25,8 @@ export default function InvestmentPlanHeaderCard({
   estimatePnl,
   investmentInfo,
 }: TInvestmentPlanHeaderCard) {
+  const { submit } = useNearTransaction();
+
   return (
     <>
       <div className="flex w-full items-center justify-between">
@@ -78,9 +82,12 @@ export default function InvestmentPlanHeaderCard({
       </div>
       <div className="h-4" />
       <div className="flex items-center gap-3">
-        <div className="rounded-full bg-primary px-6 py-2 text-black">
+        <Button
+          className="rounded-full bg-primary px-6 py-2 text-black"
+          onClick={submit}
+        >
           Invest Now
-        </div>
+        </Button>
 
         <Dialog>
           <DialogTrigger className="flex items-center gap-2 rounded bg-[#1A1D1E] px-4 py-2 text-white">
@@ -98,7 +105,7 @@ export default function InvestmentPlanHeaderCard({
                   <p>Generated on: {generatedDate}</p>
                 </div>
               </div>
-          
+
               <>
                 <h1 className="text-[32px] text-white">{title}</h1>
                 <div className="h-4" />
@@ -132,8 +139,8 @@ export default function InvestmentPlanHeaderCard({
                   </div>
                 </div>
               </div>
-              <div className="h-4"/>
-              <ModalForm/>
+              <div className="h-4" />
+              <ModalForm />
             </DialogHeader>
           </DialogContent>
         </Dialog>
