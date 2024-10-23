@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import { getChainColor } from "@/lib/config/chain-colors";
 
+
 export default function InvestmentPlanMainCard({
   investment,
   isEditing,

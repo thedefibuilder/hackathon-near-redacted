@@ -33,6 +33,7 @@ export default function InvestmentsPlan() {
     return <InvestmentSkeleton />;
   }
 
+
   if (!currentStrategy) {
     return (
       <div className="flex h-[400px] items-center justify-center text-muted">

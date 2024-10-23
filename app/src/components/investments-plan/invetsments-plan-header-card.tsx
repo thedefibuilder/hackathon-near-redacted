@@ -18,6 +18,7 @@ import {
   formatPercent,
 } from "@/lib/utils/investment-calculations";
 
+
 export default function InvestmentPlanHeaderCard({
   aiRisk,
   generatedDate,
@@ -32,6 +33,7 @@ export default function InvestmentPlanHeaderCard({
     }
     return value;
   };
+
 
   return (
     <>
