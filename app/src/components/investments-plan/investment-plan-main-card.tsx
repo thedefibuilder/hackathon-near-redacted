@@ -64,16 +64,23 @@ export default function InvestmentPlanMainCard({
 
               <div className="relative w-4/12 max-w-[80px]">
                 {/* Protocol Icon - Larger and in the background */}
-                <div className="flex h-20 w-20 items-center justify-center">
-                  <Image
-                    src={getProtocolIcon(item.protocol)}
-                    alt={`${item.protocol} icon`}
-                    width={80}
-                    height={80}
-                    className="rounded-full bg-white/10 p-1"
-                    onError={handleImageError}
-                  />
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex h-20 w-20 items-center justify-center">
+                      <Image
+                        src={getProtocolIcon(item.protocol)}
+                        alt={`${item.protocol} icon`}
+                        width={80}
+                        height={80}
+                        className="rounded-full bg-white/10 p-1"
+                        onError={handleImageError}
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-black text-white">
+                    <p>{item.protocol}</p>
+                  </TooltipContent>
+                </Tooltip>
 
                 {/* Chain Icon - Smaller and overlaid in the bottom right */}
                 <div className="absolute -bottom-0 -right-0">
