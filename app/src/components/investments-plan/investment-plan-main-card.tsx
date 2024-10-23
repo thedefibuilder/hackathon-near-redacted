@@ -25,6 +25,29 @@ export default function InvestmentPlanMainCard({
 }: InvestmentPlanMainCardProps) {
   const totalValue = investment.reduce((sum, item) => sum + item.usdValue, 0);
 
+  // Group investments by chain and calculate total percentages
+  const chainDistributions = investment.reduce(
+    (acc, item) => {
+      const chain = item.chain;
+      const percentage = (item.usdValue / totalValue) * 100;
+
+      if (!acc[chain]) {
+        acc[chain] = {
+          percentage: 0,
+          color: getChainColor(chain),
+        };
+      }
+      acc[chain].percentage += percentage;
+      return acc;
+    },
+    {} as Record<string, { percentage: number; color: string }>,
+  );
+
+  // Convert to array and sort by percentage for consistent rendering
+  const sortedChainDistributions = Object.entries(chainDistributions).sort(
+    (a, b) => b[1].percentage - a[1].percentage,
+  );
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -59,7 +82,6 @@ export default function InvestmentPlanMainCard({
               />
 
               <div className="relative w-4/12 max-w-[80px]">
-                {/* Protocol Icon - Larger and in the background */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="flex h-20 w-20 items-center justify-center">
@@ -78,7 +100,6 @@ export default function InvestmentPlanMainCard({
                   </TooltipContent>
                 </Tooltip>
 
-                {/* Chain Icon - Smaller and overlaid in the bottom right */}
                 <div className="absolute -bottom-0 -right-0">
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -142,27 +163,24 @@ export default function InvestmentPlanMainCard({
       <p className="text-xl">Funds distribution</p>
       <div className="h-4" />
       <div className="flex h-2 w-full overflow-hidden rounded-lg bg-gray-300">
-        {investment.map((item, index) => {
-          const percentage = (item.usdValue / totalValue) * 100;
-          return (
-            <Tooltip key={index}>
-              <TooltipTrigger asChild>
-                <div
-                  style={{
-                    width: `${percentage}%`,
-                    backgroundColor: getChainColor(item.chain),
-                  }}
-                  className={cn(["h-full cursor-default"])}
-                />
-              </TooltipTrigger>
-              <TooltipContent className="bg-black text-white">
-                <p>
-                  {item.chain}: {percentage.toFixed(1)}%
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          );
-        })}
+        {sortedChainDistributions.map(([chain, { percentage, color }]) => (
+          <Tooltip key={chain}>
+            <TooltipTrigger asChild>
+              <div
+                style={{
+                  width: `${percentage}%`,
+                  backgroundColor: color,
+                }}
+                className={cn(["h-full cursor-default"])}
+              />
+            </TooltipTrigger>
+            <TooltipContent className="bg-black text-white">
+              <p>
+                {chain}: {percentage.toFixed(1)}%
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        ))}
       </div>
     </TooltipProvider>
   );
