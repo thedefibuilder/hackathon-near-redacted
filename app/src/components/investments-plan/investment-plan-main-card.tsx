@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getChainColor } from "@/lib/config/chain-colors";
 
 export default function InvestmentPlanMainCard({
   investment,
@@ -53,13 +54,8 @@ export default function InvestmentPlanMainCard({
               <div
                 className={cn([
                   "absolute bottom-0 left-0 h-2 w-full rounded-b-lg",
-                  {
-                    "bg-investYellow": index === 0,
-                    "bg-investBlue": index === 1,
-                    "bg-investOrange": index === 2,
-                    "bg-investPurpel": index === 3,
-                  },
                 ])}
+                style={{ backgroundColor: getChainColor(item.chain) }}
               />
 
               <div className="relative w-4/12 max-w-[80px]">
@@ -151,16 +147,11 @@ export default function InvestmentPlanMainCard({
           return (
             <div
               key={index}
-              style={{ width: `${percentage}%` }}
-              className={cn([
-                "h-full",
-                {
-                  "bg-investYellow": index === 0,
-                  "bg-investBlue": index === 1,
-                  "bg-investOrange": index === 2,
-                  "bg-investPurpel": index === 3,
-                },
-              ])}
+              style={{
+                width: `${percentage}%`,
+                backgroundColor: getChainColor(item.chain),
+              }}
+              className={cn(["h-full"])}
             />
           );
         })}
