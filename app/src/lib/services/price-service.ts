@@ -16,19 +16,24 @@ const priceResponseSchema = z.object({
   }),
 });
 
+// Type for the API response
+type PriceResponse = z.infer<typeof priceResponseSchema>;
+
 export class PriceService {
   private static async fetchNearPrice(): Promise<number> {
     try {
       const response = await fetch(
-        `${COINGECKO_API}/simple/price?ids=near&vs_currencies=usd`,
+        `${COINGECKO_API}/simple/price?ids=near&vs_currencies=usd`
       );
 
       if (!response.ok) {
         throw new Error(`CoinGecko API error: ${response.statusText}`);
       }
 
-      const data = await response.json();
-      const validated = priceResponseSchema.parse(data);
+      const data: unknown = await response.json(); // Fetch data as unknown for safety
+
+      // Validate response data against the schema
+      const validated: PriceResponse = priceResponseSchema.parse(data);
       return validated.near.usd;
     } catch (error) {
       console.error("Error fetching NEAR price:", error);

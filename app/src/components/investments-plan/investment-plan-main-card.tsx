@@ -18,15 +18,15 @@ import {
 } from "@/components/ui/tooltip";
 import { getChainColor } from "@/lib/config/chain-colors";
 
-
 export default function InvestmentPlanMainCard({
   investment,
   isEditing,
   onRemove,
+   
 }: InvestmentPlanMainCardProps) {
   const totalValue = investment.reduce((sum, item) => sum + item.usdValue, 0);
 
-  // Group investments by chain and calculate total percentages
+
   const chainDistributions = investment.reduce(
     (acc, item) => {
       const chain = item.chain;
@@ -41,12 +41,12 @@ export default function InvestmentPlanMainCard({
       acc[chain].percentage += percentage;
       return acc;
     },
-    {} as Record<string, { percentage: number; color: string }>,
+    {} as Record<string, { percentage: number; color: string }>
   );
 
   // Convert to array and sort by percentage for consistent rendering
   const sortedChainDistributions = Object.entries(chainDistributions).sort(
-    (a, b) => b[1].percentage - a[1].percentage,
+    (a, b) => b[1].percentage - a[1].percentage
   );
 
   const formatCurrency = (value: number) => {
@@ -68,6 +68,21 @@ export default function InvestmentPlanMainCard({
         return "";
     }
   };
+
+  const riskValues: Record<string, number> = {
+    "Low Risk": 25,
+    "Medium Risk": 50,
+    "High Risk": 75,
+    "Degen":100
+  };
+
+  const averageRisk =
+    investment.length > 0
+      ? investment.reduce((sum, item) => {
+          return sum + (riskValues[item.risk] ?? 0);
+        }, 0) / investment.length
+      : 0; 
+
 
   return (
     <TooltipProvider>

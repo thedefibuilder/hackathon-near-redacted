@@ -1,5 +1,4 @@
 "use client";
-
 import { FarmCategories, farmSchema } from "@/lib/schemas/schema";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -11,17 +10,23 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { Slider } from "../ui/slider";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { DatePicker } from "../ui/date-picker";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { api } from "@/trpc/react";
-import { useToast } from "../ui/toast-provider";
 import { useStrategyStore } from "@/lib/stores/strategy-store";
+import { InvestmentRiskLevel } from "@/lib/schemas/investment-types"; // Ensure this is correctly imported
+import { useToast } from "../ui/toast-provider";
 
 export default function FarmsForm() {
   const { toast } = useToast();
@@ -60,14 +65,20 @@ export default function FarmsForm() {
     resolver: zodResolver(farmSchema),
     defaultValues: {
       categories: [FarmCategories.ARTIFICIAL_INTELLIGENCE],
-      risk: 33,
+      risk: InvestmentRiskLevel.LOW,
       near: "",
-      time: new Date(),
+      time: "Less than 6 months",
     },
   });
 
+  const mapRiskValue = (value: number): InvestmentRiskLevel => {
+    if (value < 50) return InvestmentRiskLevel.LOW;
+    if (value < 75) return InvestmentRiskLevel.MEDIUM;
+    return InvestmentRiskLevel.HIGH;
+  };
+
   const onSubmit = async (data: z.infer<typeof farmSchema>) => {
-    // TODO: Replace with actual user address from wallet connection
+    const riskLevel = data.risk;
     const userId = "0x123456789ccb";
 
     await generateStrategy.mutateAsync({
@@ -75,6 +86,8 @@ export default function FarmsForm() {
       userId,
     });
   };
+
+  console.log(form.watch());
 
   return (
     <Form {...form}>
@@ -113,27 +126,70 @@ export default function FarmsForm() {
         <FormField
           control={form.control}
           name="risk"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-[22px] font-bold text-white">
-                Risk Level
-              </FormLabel>
-              <FormControl>
-                <Slider
-                  value={[field.value]}
-                  onValueChange={(value) => field.onChange(value[0])}
-                  max={100}
-                  step={3}
-                />
-              </FormControl>
-              <FormDescription className="flex items-center justify-between text-white">
-                <span>Very Low</span>
-                <span>Very High</span>
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={({ field }) => {
+            const sliderValue: number =
+              field.value === InvestmentRiskLevel.LOW
+                ? 0
+                : field.value === InvestmentRiskLevel.MEDIUM
+                  ? 50
+                  : field.value === InvestmentRiskLevel.HIGH
+                    ? 75
+                    : field.value === InvestmentRiskLevel.Degen
+                      ? 100
+                      : 0; 
+
+            const mapRiskValue = (value: number): InvestmentRiskLevel => {
+              switch (value) {
+                case 0:
+                  return InvestmentRiskLevel.LOW;
+                case 50:
+                  return InvestmentRiskLevel.MEDIUM;
+                case 75:
+                  return InvestmentRiskLevel.HIGH;
+                case 100:
+                  return InvestmentRiskLevel.Degen;
+                default:
+                  return InvestmentRiskLevel.LOW; 
+              }
+            };
+
+            return (
+              <FormItem>
+                <FormLabel className="text-[22px] font-bold text-white">
+                  Risk Level
+                </FormLabel>
+                <FormControl>
+                  <Slider
+                    value={[sliderValue]}
+                    onValueChange={(value: number[]) => {
+                      if (Array.isArray(value) && value.length > 0) {
+                        const risk = mapRiskValue(value[0]!); // Non-null assertion
+                        field.onChange(risk);
+                      }
+                    }}
+                    max={100}
+                    step={25}
+                    min={0}
+                  />
+                </FormControl>
+                <div className="relative mt-2 flex justify-between text-white">
+                  <span style={{ position: "absolute", left: "0%" }}>Low</span>
+                  <span style={{ position: "absolute", left: "45%" }}>
+                    Medium
+                  </span>
+                  <span style={{ position: "absolute", left: "72%" }}>
+                    High
+                  </span>
+                  <span style={{ position: "absolute", left: "93%" }}>
+                    Degen
+                  </span>
+                </div>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
+
         <div className="h-10" />
         <Label className="text-[22px] font-bold text-white">
           Capital Committed
@@ -173,10 +229,25 @@ export default function FarmsForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <DatePicker
-                      {...field}
-                      onChange={(value) => field.onChange(value)}
-                    />
+                    <Select {...field}>
+                      <SelectTrigger className="h-12 w-full rounded-full border-none bg-muted-foreground text-white">
+                        <SelectValue placeholder="Less than 6 months" />
+                      </SelectTrigger>
+                      <SelectContent className="border-none bg-muted-foreground text-white">
+                        <SelectItem value="Less than 6 months">
+                          Less than 6 months
+                        </SelectItem>
+                        <SelectItem value=">6 - 12 months">
+                          6 - 12 months
+                        </SelectItem>
+                        <SelectItem value="12- 24 months">
+                          12- 24 months
+                        </SelectItem>
+                        <SelectItem value="More than 24 months">
+                          More than 24 months
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

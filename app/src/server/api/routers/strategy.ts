@@ -1,31 +1,29 @@
-// src/server/api/routers/strategy.ts
-
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { farmSchema, FarmCategories } from "@/lib/schemas/schema";
+import { FarmCategories } from "@/lib/schemas/schema";
 import { TRPCError } from "@trpc/server";
 import { generateInvestmentAdvice } from "@/lib/openai";
 import { PriceService } from "@/lib/services/price-service";
+import { InvestmentRiskLevel } from "@/lib/schemas/investment-types";
 
-// Schema for investments in the database
 const investmentSchema = z.object({
   chain: z.string(),
   protocol: z.string(),
   pool: z.string(),
   APR: z.number().optional(),
-  amount: z.number(),
+  amount: z.number().nonnegative(), 
 });
 
-// Schema for generating new strategies
 const generateStrategyInput = z.object({
   categories: z.array(z.nativeEnum(FarmCategories)),
-  risk: z.number().min(0).max(100),
-  near: z.string(),
-  time: z.date(),
+  risk: z.nativeEnum(InvestmentRiskLevel),
+  near: z.string().refine(val => !isNaN(parseFloat(val)), {
+    message: "NEAR amount must be a valid number",
+  }),
+  time: z.string(),
   userId: z.string(),
 });
 
-// Schema for updating strategies
 const updateStrategySchema = z.object({
   strategyId: z.string(),
   isFavorite: z.boolean().optional(),
@@ -34,38 +32,25 @@ const updateStrategySchema = z.object({
 });
 
 export const strategyRouter = createTRPCRouter({
-  // POST /generate - Generate new investment strategy
+
   generate: publicProcedure
     .input(generateStrategyInput)
     .mutation(async ({ ctx, input }) => {
       try {
-        // Ensure user exists in database
         const user = await ctx.db.user.upsert({
           where: { id: input.userId },
           create: { id: input.userId },
           update: {},
         });
-
-        // Convert NEAR amount to number
         const nearAmount = parseFloat(input.near);
-        if (isNaN(nearAmount)) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Invalid NEAR amount provided",
-          });
-        }
-
         const usdAmount = await PriceService.convertNearToUSD(nearAmount);
-
-        // Generate investment strategy using OpenAI
         const generatedInvestments = await generateInvestmentAdvice({
           categories: input.categories,
-          risk: input.risk,
+          risk:input.risk,
           amount: usdAmount,
           time: input.time,
         });
 
-        // Create strategy in database
         const strategy = await ctx.db.strategy.create({
           data: {
             userId: user.id,
@@ -93,12 +78,10 @@ export const strategyRouter = createTRPCRouter({
       }
     }),
 
-  // POST /update-strategy - Update existing strategy
   updateStrategy: publicProcedure
     .input(updateStrategySchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        // Verify strategy exists and get its current data
         const existingStrategy = await ctx.db.strategy.findUnique({
           where: { id: input.strategyId },
           include: { investments: true },
@@ -110,48 +93,34 @@ export const strategyRouter = createTRPCRouter({
             message: "Strategy not found",
           });
         }
-
-        // Prepare update data
-        const updateData: any = {};
-        if (typeof input.isFavorite !== "undefined") {
+        const updateData: { isFavorite?: boolean; isActive?: boolean } = {};
+        if (input.isFavorite !== undefined) {
           updateData.isFavorite = input.isFavorite;
         }
-        if (typeof input.isActive !== "undefined") {
+        if (input.isActive !== undefined) {
           updateData.isActive = input.isActive;
         }
-
-        // Start a transaction to update strategy and investments
-        const updatedStrategy = await ctx.db.$transaction(
-          async (prisma: typeof ctx.db) => {
-            // Update strategy
-            const strategy = await prisma.strategy.update({
-              where: { id: input.strategyId },
-              data: updateData,
+        const updatedStrategy = await ctx.db.$transaction(async (prisma) => {
+          await prisma.strategy.update({
+            where: { id: input.strategyId },
+            data: updateData,
+          });
+          if (input.investments) {
+            await prisma.investment.deleteMany({
+              where: { strategyId: input.strategyId },
             });
-
-            // If new investments provided, replace existing ones
-            if (input.investments) {
-              // Delete existing investments
-              await prisma.investment.deleteMany({
-                where: { strategyId: input.strategyId },
-              });
-
-              // Create new investments
-              await prisma.investment.createMany({
-                data: input.investments.map((inv) => ({
-                  ...inv,
-                  strategyId: input.strategyId,
-                })),
-              });
-            }
-
-            // Return updated strategy with investments
-            return prisma.strategy.findUnique({
-              where: { id: input.strategyId },
-              include: { investments: true },
+            await prisma.investment.createMany({
+              data: input.investments.map((inv) => ({
+                ...inv,
+                strategyId: input.strategyId,
+              })),
             });
-          },
-        );
+          }
+          return prisma.strategy.findUnique({
+            where: { id: input.strategyId },
+            include: { investments: true },
+          });
+        });
 
         if (!updatedStrategy) {
           throw new TRPCError({

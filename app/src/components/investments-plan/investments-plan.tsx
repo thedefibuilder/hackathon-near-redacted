@@ -29,6 +29,8 @@ import {
 export default function InvestmentsPlan() {
   const { currentStrategy, isLoading } = useStrategyStore();
 
+  console.log('currentStrategy',currentStrategy)
+
   if (isLoading) {
     return <InvestmentSkeleton />;
   }
@@ -43,12 +45,13 @@ export default function InvestmentsPlan() {
   }
 
   const getRiskLevel = (apr: number | null): InvestmentRiskLevel => {
-    if (!apr || apr < 50) return InvestmentRiskLevel.LOW;
-    if (apr < 100) return InvestmentRiskLevel.MEDIUM;
-    return InvestmentRiskLevel.HIGH;
+    if (apr === null) return InvestmentRiskLevel.LOW; 
+    if (apr < 50) return InvestmentRiskLevel.LOW; 
+    if (apr < 75) return InvestmentRiskLevel.MEDIUM; 
+    if (apr < 100) return InvestmentRiskLevel.HIGH; 
+    return InvestmentRiskLevel.Degen; 
   };
 
-  // Calculate metrics
   const averageAPR = calculateAverageAPR(currentStrategy.investments);
   const estimatedPnL = calculateEstimatedPnL(currentStrategy.investments);
   const totalInvestment = currentStrategy.investments.reduce(
@@ -56,7 +59,6 @@ export default function InvestmentsPlan() {
     0,
   );
 
-  // Transform API investments to UI format
   const transformedInvestments: Investment[] = currentStrategy.investments.map(
     (inv) => ({
       protocol: inv.protocol,

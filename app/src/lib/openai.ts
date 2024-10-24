@@ -1,7 +1,8 @@
 // src/lib/openai.ts
 
-import OpenAI from "openai";
-import { FarmCategories } from "./schemas/schema";
+import OpenAI from "openai"; // Use import type for types
+import type { FarmCategories } from "./schemas/schema";
+import { InvestmentRiskLevel } from "./schemas/investment-types"; // Ensure this enum is correctly defined
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -17,9 +18,9 @@ export async function generateInvestmentAdvice({
   time,
 }: {
   categories: FarmCategories[];
-  risk: number;
+  risk: InvestmentRiskLevel; // Use the enum directly
   amount: number;
-  time: Date;
+  time: string;
 }) {
   try {
     // Create a thread
@@ -59,15 +60,15 @@ export async function generateInvestmentAdvice({
       .filter((msg) => msg.role === "assistant")
       .pop();
 
-    if (
-      !lastMessage ||
-      !lastMessage.content[0] ||
-      !("text" in lastMessage.content[0])
-    ) {
+    // Check if the content is of type that has text
+    const responseText =
+      lastMessage?.content?.[0]?.type === "text"
+        ? lastMessage.content[0].text?.value
+        : null;
+
+    if (!responseText) {
       throw new Error("Invalid response format from assistant");
     }
-
-    const responseText = lastMessage.content[0].text.value;
 
     const investments = extractInvestments(responseText);
 
@@ -85,12 +86,21 @@ function generatePrompt({
   time,
 }: {
   categories: FarmCategories[];
-  risk: number;
+  risk: InvestmentRiskLevel; 
   amount: number;
-  time: Date;
+  time: string;
 }): string {
-  const riskLevel = risk <= 33 ? "low" : risk <= 66 ? "medium" : "high";
-  const timeFrame = time.toISOString().split("T")[0];
+
+  const riskLevel = 
+  risk === InvestmentRiskLevel.LOW
+    ? "low"
+    : risk === InvestmentRiskLevel.MEDIUM
+    ? "medium"
+    : risk === InvestmentRiskLevel.HIGH
+    ? "high"
+    : "degen"; 
+
+  const timeFrame = time.toString().split("T")[0];
 
   return `Generate an investment strategy with the following parameters:
 - Investment Categories: ${categories.join(", ")}
@@ -114,7 +124,7 @@ function extractInvestments(response: string): Array<{
   amount: number;
 }> {
   try {
-    // Find all JSON objects in the response
+    // Find all JSON objects in the response using a safer approach
     const jsonRegex = /{[^{}]*}/g;
     const matches = response.match(jsonRegex);
 
@@ -122,8 +132,36 @@ function extractInvestments(response: string): Array<{
       throw new Error("No valid JSON found in response");
     }
 
-    // Parse each JSON object
-    return matches.map((match) => JSON.parse(match));
+    // Safely parse each JSON object and ensure proper type checking
+    return matches.map((match) => {
+      const parsed = JSON.parse(match) as {
+        chain?: string;
+        protocol?: string;
+        pool?: string;
+        APR?: number;
+        amount?: number;
+      };
+
+      // Ensure that all properties are present and valid
+      if (
+        typeof parsed.chain === "string" &&
+        typeof parsed.protocol === "string" &&
+        typeof parsed.pool === "string" &&
+        typeof parsed.APR === "number" &&
+        typeof parsed.amount === "number"
+      ) {
+        return {
+          chain: parsed.chain,
+          protocol: parsed.protocol,
+          pool: parsed.pool,
+          APR: parsed.APR,
+          amount: parsed.amount,
+        };
+      } else {
+        // If any field is missing or invalid, throw an error
+        throw new Error("Invalid data structure in response");
+      }
+    });
   } catch (error) {
     console.error("Error parsing assistant response:", error);
     throw new Error("Failed to parse investment recommendations");

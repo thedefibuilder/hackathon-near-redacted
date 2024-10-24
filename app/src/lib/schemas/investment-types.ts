@@ -1,14 +1,13 @@
 import { type TablerIcon } from "@tabler/icons-react";
 import { z } from "zod";
 
-// Enums
 export enum InvestmentRiskLevel {
   LOW = "Low Risk",
   MEDIUM = "Medium Risk",
-  HIGH = "High Risk",
+  HIGH = "Hight Risk",
+  Degen = "Degen Risk",
 }
 
-// Base Types
 export type InvestmentInfo = {
   icon: TablerIcon;
   name?: string;
@@ -22,15 +21,16 @@ export type Investment = {
   usdValue: number;
   apr: number | null;
   risk: InvestmentRiskLevel;
+  img?:string;
 };
 
-// Component Types
+
 export type InvestmentPlanHeaderCardProps = {
   aiRisk: number;
   generatedDate: string;
   title: string;
   estimatedPnL: number;
-  averageAPR: number; // Added this field
+  averageAPR: number; 
   investmentInfo: InvestmentInfo[];
 };
 
@@ -41,9 +41,11 @@ export type InvestmentPlanCardProps = {
 export type InvestmentPlanMainCardProps = InvestmentPlanCardProps & {
   onRemove?: (index: number) => void;
   isEditing?: boolean;
+  investment: Investment[];
+
 };
 
-// API Types
+
 export interface APIInvestment {
   id: string;
   strategyId: string;
@@ -64,7 +66,6 @@ export interface APIStrategy {
   investments: APIInvestment[];
 }
 
-// Zod Schemas
 export const investmentInfoSchema = z.object({
   icon: z.any(),
   name: z.string().optional(),
