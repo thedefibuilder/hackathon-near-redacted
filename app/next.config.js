@@ -5,6 +5,19 @@
 await import("./src/env.js");
 
 /** @type {import("next").NextConfig} */
-const config = {};
+
+/** @type {import("next").NextConfig} */
+const config = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "icons.llamao.fi",
+        port: "",
+        pathname: "/icons/**",
+      },
+    ],
+  },
+};
 
 export default config;

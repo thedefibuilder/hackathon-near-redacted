@@ -1,23 +1,53 @@
-// Existing imports
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { IconMinus } from "@tabler/icons-react";
-import { TInvestmentPlanCard } from "./investments-plan";
-import { Progress } from "../ui/progress";
-
-interface InvestmentPlanMainCardProps extends TInvestmentPlanCard {
-  onRemove?: (index: number) => void;
-  isEditing?: boolean;
-  haveStrategyPrompt?: boolean;
-}
+import {
+  type InvestmentPlanMainCardProps,
+  InvestmentRiskLevel,
+} from "@/lib/schemas/investment-types";
+import {
+  getProtocolIcon,
+  getChainIcon,
+  handleImageError,
+} from "@/lib/utils/protocol-utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { getChainColor } from "@/lib/config/chain-colors";
 
 export default function InvestmentPlanMainCard({
   investment,
   isEditing,
   onRemove,
-  haveStrategyPrompt,
+   
 }: InvestmentPlanMainCardProps) {
   const totalValue = investment.reduce((sum, item) => sum + item.usdValue, 0);
+
+
+  const chainDistributions = investment.reduce(
+    (acc, item) => {
+      const chain = item.chain;
+      const percentage = (item.usdValue / totalValue) * 100;
+
+      if (!acc[chain]) {
+        acc[chain] = {
+          percentage: 0,
+          color: getChainColor(chain),
+        };
+      }
+      acc[chain].percentage += percentage;
+      return acc;
+    },
+    {} as Record<string, { percentage: number; color: string }>
+  );
+
+  // Convert to array and sort by percentage for consistent rendering
+  const sortedChainDistributions = Object.entries(chainDistributions).sort(
+    (a, b) => b[1].percentage - a[1].percentage
+  );
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -26,20 +56,36 @@ export default function InvestmentPlanMainCard({
     }).format(value);
   };
 
-  const uniqueCategories = Array.from(
-    new Set(investment.flatMap(item => item.categories?.map(category => category.trim())))
-  );
+  const getRiskColorClasses = (risk: InvestmentRiskLevel) => {
+    switch (risk) {
+      case InvestmentRiskLevel.LOW:
+        return "bg-green-300 text-green-600";
+      case InvestmentRiskLevel.MEDIUM:
+        return "bg-yellow-300 text-yellow-600";
+      case InvestmentRiskLevel.HIGH:
+        return "bg-red-300 text-red-600";
+      default:
+        return "";
+    }
+  };
+
   const riskValues: Record<string, number> = {
     "Low Risk": 25,
     "Medium Risk": 50,
     "High Risk": 75,
+    "Degen":100
   };
 
-  const averageRisk = investment.reduce((sum, item) => {
-    return sum + (riskValues[item.risk] ?? 0);
-  }, 0) / investment.length;
+  const averageRisk =
+    investment.length > 0
+      ? investment.reduce((sum, item) => {
+          return sum + (riskValues[item.risk] ?? 0);
+        }, 0) / investment.length
+      : 0; 
+
+
   return (
-    <>
+    <TooltipProvider>
       <div className="flex flex-wrap gap-4">
         {investment.map((item, index) => (
           <div key={index} className="w-[calc(50%-0.5rem)]">
@@ -47,46 +93,70 @@ export default function InvestmentPlanMainCard({
               <div
                 className={cn([
                   "absolute bottom-0 left-0 h-2 w-full rounded-b-lg",
-                  {
-                    "bg-investYellow": index === 0,
-                    "bg-investBlue": index === 1,
-                    "bg-investOrange": index === 2,
-                    "bg-investPurpel": index === 3,
-                  },
                 ])}
+                style={{ backgroundColor: getChainColor(item.chain) }}
               />
 
-              <div className="flex w-4/12 justify-center">
-                <Image
-                  src={item.img}
-                  alt="Investment image"
-                  width={64}
-                  height={64}
-                  className="h-16 w-16"
-                />
+              <div className="relative w-4/12 max-w-[80px]">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex h-20 w-20 items-center justify-center">
+                      <Image
+                        src={getProtocolIcon(item.protocol)}
+                        alt={`${item.protocol} icon`}
+                        width={80}
+                        height={80}
+                        className="rounded-full bg-white/10 p-1"
+                        onError={handleImageError}
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-black text-white">
+                    <p>{item.protocol}</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <div className="absolute -bottom-0 -right-0">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <Image
+                          src={getChainIcon(item.chain)}
+                          alt={`${item.chain} icon`}
+                          width={24}
+                          height={24}
+                          className="rounded-full ring-2 ring-background"
+                          onError={handleImageError}
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-black text-white">
+                      <p>{item.chain}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
               </div>
 
               <div className="w-3/5 pb-3">
                 <div
                   className={cn([
                     "w-3/5 rounded px-2 py-1 text-center",
-                    {
-                      "bg-green-300 text-green-600": item.risk === "Low Risk",
-                      "bg-yellow-300 text-yellow-600":
-                        item.risk === "Medium Risk",
-                      "bg-red-300 text-red-600": item.risk === "High Risk",
-                    },
+                    getRiskColorClasses(item.risk),
                   ])}
                 >
                   <p>{item.risk}</p>
                 </div>
                 <div className="h-4" />
-                <p className="text-[12px] text-white">{item.currency}</p>
+                <p className="text-[12px] text-white">{item.pool}</p>
                 <div className="flex items-center gap-3">
                   <p className="text-xl font-bold">
                     {formatCurrency(item.usdValue)}
                   </p>
-                  <p className="text-[12px] text-muted">5.3% APR</p>
+                  {item.apr && (
+                    <p className="text-[12px] text-muted">
+                      {item.apr.toFixed(2)}% APR
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -109,52 +179,25 @@ export default function InvestmentPlanMainCard({
       <p className="text-xl">Funds distribution</p>
       <div className="h-4" />
       <div className="flex h-2 w-full overflow-hidden rounded-lg bg-gray-300">
-        {investment.map((item, index) => {
-          const percentage = (item.usdValue / totalValue) * 100;
-          return (
-            <div
-              key={index}
-              style={{ width: `${percentage}%` }}
-              className={cn([
-                "h-full",
-                {
-                  "bg-investYellow": index === 0,
-                  "bg-investBlue": index === 1,
-                  "bg-investOrange": index === 2,
-                  "bg-investPurpel": index === 3,
-                },
-              ])}
-            />
-          );
-        })}
+        {sortedChainDistributions.map(([chain, { percentage, color }]) => (
+          <Tooltip key={chain}>
+            <TooltipTrigger asChild>
+              <div
+                style={{
+                  width: `${percentage}%`,
+                  backgroundColor: color,
+                }}
+                className={cn(["h-full cursor-default"])}
+              />
+            </TooltipTrigger>
+            <TooltipContent className="bg-black text-white">
+              <p>
+                {chain}: {percentage.toFixed(1)}%
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        ))}
       </div>
-      {haveStrategyPrompt && (
-        <>
-          <div className="h-6" />
-          <div className="p-3 rounded-lg border border-[#A4A2A2] bg-[#0F0F0F]">
-            <h2 className="text-2xl text-white">Strategy Prompt</h2>
-            <div className="h-4" />
-            <p className="text-[16px]">Categories</p>
-            <div className="h-2" />
-            <div className="flex flex-wrap gap-2">
-              {uniqueCategories.map((category, index) => (
-                <p key={index} className="text-white bg-[#202020] p-2">
-                  {category}
-                </p>
-              ))}
-            </div>
-            <div className="h-4" />
-            <p className="text-[16px]">Risk Tolerance</p>
-            <div className="h-2" />
-            <Progress value={averageRisk} />
-            <div className="h-2" />
-            <div className="flex justify-between w-full">
-              <p>Very Low</p>
-              <p>Very High</p>
-            </div>
-          </div>
-        </>
-      )}
-    </>
+    </TooltipProvider>
   );
 }

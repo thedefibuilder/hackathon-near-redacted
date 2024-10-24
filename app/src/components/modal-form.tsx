@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { modalFormSchema } from "@/lib/schemas/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -15,39 +15,52 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import InvestmentPlanMainCard from "./investments-plan/investment-plan-main-card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Investment, InvestmentRiskLevel } from "@/lib/schemas/investment-types";
 
 export default function ModalForm() {
   const modalForm = useForm<z.infer<typeof modalFormSchema>>({
     resolver: zodResolver(modalFormSchema),
     defaultValues: {
-      neat: "",
+      near: "",
       time: 'Less than 6 months',
       investment: [
         {
-          img: "/sushi-swap.png",
-          currency: "TAO/USDT",
+          protocol: "SushiSwap",
+          chain: "Ethereum",
+          pool: "TAO/USDT",
           usdValue: 4000,
-          risk: "Low Risk",
+          apr: 5.0,
+          risk: InvestmentRiskLevel.LOW,
+          img: "/sushi-swap.png",
         },
         {
-          img: "/akash.png",
-          currency: "TAO/USDT",
+          protocol: "Akash",
+          chain: "Ethereum",
+          pool: "TAO/USDT",
           usdValue: 5000,
-          risk: "Medium Risk",
+          apr: 6.5,
+          risk: InvestmentRiskLevel.MEDIUM, 
+          img: "/akash.png",
         },
         {
-          img: "/cream.png",
-          currency: "USDT",
+          protocol: "Cream",
+          chain: "Ethereum",
+          pool: "USDT",
           usdValue: 2000,
-          risk: "Medium Risk",
+          apr: 4.0,
+          risk: InvestmentRiskLevel.MEDIUM, 
+          img: "/cream.png",
         },
         {
-          img: "/quorum.png",
-          currency: "USDC",
+          protocol: "Quorum",
+          chain: "Ethereum",
+          pool: "USDC",
           usdValue: 1000,
-          risk: "Height Risk",
+          apr: null,
+          risk: InvestmentRiskLevel.HIGH, 
+          img: "/quorum.png",
         },
-      ],
+      ] 
     },
   });
 
@@ -58,9 +71,10 @@ export default function ModalForm() {
   const removeInvestmentItem = (index: number) => {
     const currentInvestments = modalForm.getValues("investment");
     const updatedInvestments = currentInvestments.filter((_, i) => i !== index);
-    modalForm.setValue("investment", updatedInvestments); 
+    modalForm.setValue("investment", updatedInvestments);
   };
 
+  console.log(modalForm.watch())
   return (
     <Form {...modalForm}>
       <form onSubmit={modalForm.handleSubmit(onSubmit)}>
@@ -68,7 +82,7 @@ export default function ModalForm() {
           <div className="w-1/2">
             <FormField
               control={modalForm.control}
-              name="neat"
+              name="near"
               render={({ field }) => (
                 <FormItem>
                   <FormControl className="flex w-full">
@@ -92,20 +106,20 @@ export default function ModalForm() {
             />
           </div>
           <div className="w-1/2">
-          <FormField
+            <FormField
               control={modalForm.control}
               name="time"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Select {...field} >
+                    <Select {...field}>
                       <SelectTrigger className="text-white bg-muted-foreground border-none h-12 rounded-full w-full">
                         <SelectValue placeholder="Less than 6 months" />
                       </SelectTrigger>
                       <SelectContent className="bg-muted-foreground text-white border-none">
                         <SelectItem value="Less than 6 months">Less than 6 months</SelectItem>
-                        <SelectItem value=">6 - 12 months">6 - 12 months</SelectItem>
-                        <SelectItem value="12- 24 months">12- 24 months</SelectItem>
+                        <SelectItem value="6 - 12 months">6 - 12 months</SelectItem>
+                        <SelectItem value="12 - 24 months">12 - 24 months</SelectItem>
                         <SelectItem value="More than 24 months">More than 24 months</SelectItem>
                       </SelectContent>
                     </Select>
@@ -121,13 +135,15 @@ export default function ModalForm() {
           control={modalForm.control}
           name="investment"
           render={({ field }) => (
+            
             <FormItem>
               <FormControl>
-                <InvestmentPlanMainCard 
+                <InvestmentPlanMainCard
                   investment={field.value || []} 
                   onRemove={removeInvestmentItem}
                   isEditing
                 />
+                
               </FormControl>
               <FormMessage />
             </FormItem>

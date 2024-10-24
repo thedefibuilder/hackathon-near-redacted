@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { InvestmentRiskLevel } from "./investment-types";
 
 export enum FarmCategories {
   ARTIFICIAL_INTELLIGENCE = "Artificial Intelligence",
@@ -20,42 +21,45 @@ export const farmSchema = z.object({
       FarmCategories.STABLE_COINS,
       FarmCategories.RESTAKING_PROTOCOLS,
       FarmCategories.MEME_FINANCE,
-    ])
+    ]),
   ),
-  risk: z.number() 
-    .min(0, { message: "Risk must be at least 0" }) 
-    .max(100, { message: "Risk must be at most 100" }), 
-  neat: z.string()
+  risk: z.nativeEnum(InvestmentRiskLevel),
+
+  near: z.string()
     .refine(value => !isNaN(Number(value)) && Number(value) >= 0, {
       message: "Amount must be a positive number"
-    }), 
-    time: z.enum([
-      'Less than 6 months',
-      '6 - 12 months',
-      '12 - 24 months',
-      'More than 24 months',
-    ]),
-});
-
-export const modalFormSchema = z.object({
-  neat: z.string()
-  .refine(value => !isNaN(Number(value)) && Number(value) >= 0, {
-    message: "Amount must be a positive number"
-  }), 
+    }),
   time: z.enum([
     'Less than 6 months',
     '6 - 12 months',
     '12 - 24 months',
     'More than 24 months',
   ]),
-investment: z.array(z.object({
-  img: z.string().url(), 
-  currency: z.string(),    
-  usdValue: z.number()
-    .refine(value => value >= 0, {
-      message: "USD Value must be a non-negative number"
-    }),
-  risk: z.enum(["Low Risk", "Medium Risk", "Height Risk"]),  
-})),
-
 });
+
+export const modalFormSchema = z.object({
+  near: z.string()
+    .refine(value => !isNaN(Number(value)) && Number(value) >= 0, {
+      message: "Amount must be a positive number"
+    }),
+  time: z.enum([
+    'Less than 6 months',
+    '6 - 12 months',
+    '12 - 24 months',
+    'More than 24 months',
+  ]),
+  investment: z.array(z.object({
+    img: z.string().url(),
+    currency: z.string(),
+    usdValue: z.number()
+      .refine(value => value >= 0, {
+        message: "USD Value must be a non-negative number"
+      }),
+      risk: z.nativeEnum(InvestmentRiskLevel),
+    protocol: z.string(),
+    chain: z.string(),
+    pool: z.string(),
+    apr: z.number().nullable(),
+  })),
+});
+

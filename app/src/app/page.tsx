@@ -6,11 +6,11 @@ export default async function Home() {
     <div>
       <p className="italic text-muted">Today&apos;s prices by marketcap</p>
       <div className="h-5" />
-      <div className="flex gap-4">
-        <div className="w-1/2 rounded-[34px] bg-foreground p-4 max-h-[620px]">
+      <div className="flex flex-col gap-4 md:flex-row">
+        <div className="max-h-[620px] w-full rounded-[34px] bg-foreground p-4 md:w-1/2">
           <InvestmentStrategies />
         </div>
-        <div className="w-1/2">
+        <div className="w-full md:w-1/2">
           <InvestmentsPlan />
         </div>
       </div>

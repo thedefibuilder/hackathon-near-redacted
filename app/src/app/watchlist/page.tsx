@@ -5,7 +5,7 @@ export default function WatchlistPage() {
         <>
             <h1 className="text-white text-[32px] font-bold">Low risk strategies</h1>
             <div className="h-4"/>
-            <InvestmentPlan isGrid haveStrategyPrompt/>
+            <InvestmentPlan />
         </>
     )
 }
