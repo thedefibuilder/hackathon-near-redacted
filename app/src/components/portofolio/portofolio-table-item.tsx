@@ -23,7 +23,7 @@ type TPortofolioTableItem = {
   }[];
 };
 
-// Example array of portfolio items
+
 const portofolioTableItems: TPortofolioTableItem[] = [
   {
     title: "AI Strategy",
