@@ -30,7 +30,7 @@ const AccordionTrigger = React.forwardRef<
         <AccordionPrimitive.Trigger
           ref={ref}
           type="button"
-          className={cn(" absolute !right-0 bottom-0 border border-white rounded-full p-1", className)}
+          className={cn(" absolute !right-2 bottom-2 border border-white rounded-full p-1", className)}
           {...props}
         >
           <ChevronDown className="h-4 w-4 transition-transform duration-200 [&[data-state=open]>svg]:rotate-180" />
