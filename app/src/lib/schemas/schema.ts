@@ -29,7 +29,12 @@ export const farmSchema = z.object({
     .refine(value => !isNaN(Number(value)) && Number(value) >= 0, {
       message: "Amount must be a positive number"
     }), 
-  time: z.date() 
+    time: z.enum([
+      'Less than 6 months',
+      '6 - 12 months',
+      '12 - 24 months',
+      'More than 24 months',
+    ]),
 });
 
 export const modalFormSchema = z.object({
@@ -37,7 +42,12 @@ export const modalFormSchema = z.object({
   .refine(value => !isNaN(Number(value)) && Number(value) >= 0, {
     message: "Amount must be a positive number"
   }), 
-time: z.date(),
+  time: z.enum([
+    'Less than 6 months',
+    '6 - 12 months',
+    '12 - 24 months',
+    'More than 24 months',
+  ]),
 investment: z.array(z.object({
   img: z.string().url(), 
   currency: z.string(),    

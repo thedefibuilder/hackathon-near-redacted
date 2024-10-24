@@ -13,15 +13,15 @@ import {
 } from "@/components/ui/form";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
-import { DatePicker } from "./ui/date-picker";
 import InvestmentPlanMainCard from "./investments-plan/investment-plan-main-card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 export default function ModalForm() {
   const modalForm = useForm<z.infer<typeof modalFormSchema>>({
     resolver: zodResolver(modalFormSchema),
     defaultValues: {
       neat: "",
-      time: new Date(),
+      time: 'Less than 6 months',
       investment: [
         {
           img: "/sushi-swap.png",
@@ -92,16 +92,23 @@ export default function ModalForm() {
             />
           </div>
           <div className="w-1/2">
-            <FormField
+          <FormField
               control={modalForm.control}
               name="time"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <DatePicker
-                      {...field}
-                      onChange={(value) => field.onChange(value)}
-                    />
+                    <Select {...field} >
+                      <SelectTrigger className="text-white bg-muted-foreground border-none h-12 rounded-full w-full">
+                        <SelectValue placeholder="Less than 6 months" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-muted-foreground text-white border-none">
+                        <SelectItem value="Less than 6 months">Less than 6 months</SelectItem>
+                        <SelectItem value=">6 - 12 months">6 - 12 months</SelectItem>
+                        <SelectItem value="12- 24 months">12- 24 months</SelectItem>
+                        <SelectItem value="More than 24 months">More than 24 months</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
